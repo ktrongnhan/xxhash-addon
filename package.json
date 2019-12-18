@@ -1,0 +1,29 @@
+{
+  "name": "xxhash-addon",
+  "version": "1.0.0",
+  "description": "Yet another xxhash addon for Node.js",
+  "main": "xxhash-addon.js",
+  "scripts": {
+    "install": "node-gyp rebuild --target=v10.0.0 --verbose --ensure",
+    "test": "jest"
+  },
+  "engines": {
+    "node": ">=10.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ktrongnhan/xxhash-addon.git"
+  },
+  "keywords": [
+    "xxhash"
+  ],
+  "author": "Nhan Khong <knhana7@gmail.com>",
+  "license": "BSD-2-Clause",
+  "bugs": {
+    "url": "https://github.com/ktrongnhan/xxhash-addon/issues"
+  },
+  "homepage": "https://github.com/ktrongnhan/xxhash-addon#readme",
+  "devDependencies": {
+    "jest": "^24.9.0"
+  }
+}
