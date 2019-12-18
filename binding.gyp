@@ -3,7 +3,7 @@
         {
             "target_name": "addon",
             "include_dirs": [
-                "deps/xxhash",
+                "deps/xxHash",
                 "src"
             ],
             "sources": ["src/addon.cc",
