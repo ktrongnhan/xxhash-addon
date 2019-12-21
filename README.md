@@ -1,5 +1,8 @@
 Yet another xxhash addon for Node.js
 
+![npm](https://img.shields.io/npm/v/xxhash-addon?style=plastic)
+![NPM](https://img.shields.io/npm/l/xxhash-addon?style=plastic)
+
 |Platform |Build Status |
 |------------|---------|
 |Windows | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
@@ -25,10 +28,12 @@ npm install xxhash-addon
 In comparison to other implementations/bindings
 =========
 * [node-xxhash](https://github.com/mscdex/node-xxhash)
+
 Although node-xxhash offers incredible compability as it requires Node.js >= 4.0.0, it does not seem to produce consistent hash values.
 For example, given a seed value of 0xDEADBEEF and the string 'hello', node-xxhash's XXH32 produces 2717969635 as the string's hash, which is in big-endian form, whilst its XXH64 produces cd6d9204aaad5b0c, which is in little-endian form.
 
 * [xxhashjs](https://github.com/pierrec/js-xxhash)
+
 This fantastic project is a pure JavaScript implementation of the algorithm. However it has not been updated for years.
 
 Example of Usage
