@@ -32,7 +32,7 @@ private:
   napi_env env_;
   napi_ref wrapper_;
   XXH64_hash_t seed_;
-  XXH64_state_t state_;
+  XXH64_state_t* state_ = NULL;
 };
 
 #endif

@@ -5,7 +5,8 @@
 XXHash3::XXHash3(XXH64_hash_t seed)
     : env_(nullptr), wrapper_(nullptr), seed_(seed)
 {
-  XXH3_64bits_reset_withSeed(&state_, seed);
+  state_ = XXH3_createState();
+  XXH3_64bits_reset_withSeed(state_, seed);
 }
 
 XXHash3::XXHash3(const void *secret, size_t secretSize)
@@ -19,7 +20,8 @@ XXHash3::XXHash3(const void *secret, size_t secretSize)
   assert(secret_);
 
   secret_ = memcpy(secret_, secret, secretSize);
-  XXH3_64bits_reset_withSecret(&state_, secret_, secretSize);
+  state_ = XXH3_createState();
+  XXH3_64bits_reset_withSecret(state_, secret_, secretSize);
 }
 
 XXHash3::~XXHash3()
@@ -28,6 +30,12 @@ XXHash3::~XXHash3()
   {
     free(secret_);
     secret_ = NULL;
+  }
+
+  if (state_ != NULL)
+  {
+    XXH3_freeState(state_);
+    state_ = NULL;
   }
 
   napi_delete_reference(env_, wrapper_);
@@ -269,7 +277,7 @@ napi_value XXHash3::Update(napi_env env, napi_callback_info info)
   status = napi_unwrap(env, jsthis, reinterpret_cast<void **>(&hasher));
   assert(status == napi_ok);
 
-  XXH_errorcode hash_error = XXH3_64bits_update(&(hasher->state_),
+  XXH_errorcode hash_error = XXH3_64bits_update(hasher->state_,
                                                 reinterpret_cast<void *>(data),
                                                 buf_len);
   assert(hash_error == XXH_OK);
@@ -290,7 +298,7 @@ napi_value XXHash3::Digest(napi_env env, napi_callback_info info)
   assert(status == napi_ok);
 
   XXH64_canonical_t canonical_sum;
-  XXH64_hash_t sum = XXH3_64bits_digest(&(hasher->state_));
+  XXH64_hash_t sum = XXH3_64bits_digest(hasher->state_);
 
   // canonicalize the hash value
   XXH64_canonicalFromHash(&canonical_sum, sum);
@@ -317,9 +325,9 @@ napi_value XXHash3::Reset(napi_env env, napi_callback_info info)
   assert(status == napi_ok);
 
   if (hasher->secret_ == NULL)
-    assert(XXH3_64bits_reset_withSeed(&(hasher->state_), hasher->seed_) == XXH_OK);
+    assert(XXH3_64bits_reset_withSeed(hasher->state_, hasher->seed_) == XXH_OK);
   else
-    assert(XXH3_64bits_reset_withSecret(&(hasher->state_), hasher->secret_, hasher->secretSize_) == XXH_OK);
+    assert(XXH3_64bits_reset_withSecret(hasher->state_, hasher->secret_, hasher->secretSize_) == XXH_OK);
 
   return nullptr;
 }
