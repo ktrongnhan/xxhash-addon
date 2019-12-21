@@ -4,11 +4,17 @@
 XXHash32::XXHash32(XXH32_hash_t seed)
     : env_(nullptr), wrapper_(nullptr), seed_(seed)
 {
-  XXH32_reset(&state_, seed);
+  state_ = XXH32_createState();
+  XXH32_reset(state_, seed);
 }
 
 XXHash32::~XXHash32()
 {
+  if (state_ != NULL)
+  {
+    XXH32_freeState(state_);
+    state_ = NULL;
+  }
   napi_delete_reference(env_, wrapper_);
 }
 
@@ -219,7 +225,7 @@ napi_value XXHash32::Update(napi_env env, napi_callback_info info)
   status = napi_unwrap(env, jsthis, reinterpret_cast<void **>(&hasher));
   assert(status == napi_ok);
 
-  XXH_errorcode hash_error = XXH32_update(&(hasher->state_),
+  XXH_errorcode hash_error = XXH32_update(hasher->state_,
                                           reinterpret_cast<void *>(data),
                                           buf_len);
   assert(hash_error == XXH_OK);
@@ -240,7 +246,7 @@ napi_value XXHash32::Digest(napi_env env, napi_callback_info info)
   assert(status == napi_ok);
 
   XXH32_canonical_t canonical_sum;
-  XXH32_hash_t sum = XXH32_digest(&(hasher->state_));
+  XXH32_hash_t sum = XXH32_digest(hasher->state_);
 
   // canonicalize the hash value
   XXH32_canonicalFromHash(&canonical_sum, sum);
@@ -266,7 +272,7 @@ napi_value XXHash32::Reset(napi_env env, napi_callback_info info)
   status = napi_unwrap(env, jsthis, reinterpret_cast<void **>(&hasher));
   assert(status == napi_ok);
 
-  assert(XXH32_reset(&(hasher->state_), hasher->seed_) == XXH_OK);
+  assert(XXH32_reset(hasher->state_, hasher->seed_) == XXH_OK);
 
   return nullptr;
 }

@@ -33,7 +33,7 @@ private:
   napi_env env_;
   napi_ref wrapper_;
   XXH64_hash_t seed_;
-  XXH3_state_t state_;
+  XXH3_state_t* state_ = NULL;
   void *secret_ = NULL;
   size_t secretSize_;
 };
