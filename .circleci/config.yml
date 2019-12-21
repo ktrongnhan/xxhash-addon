@@ -39,6 +39,14 @@ jobs:
       # run tests!
       - run: npm test
 
+      # package and install
+      - run: |
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
+
   node10:
     docker:
       # specify the version you desire here
@@ -73,6 +81,14 @@ jobs:
 
       # run tests!
       - run: npm test
+
+      # package and install
+      - run: |
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
 
   node12:
     docker:
@@ -109,6 +125,14 @@ jobs:
       # run tests!
       - run: npm test
 
+      # package and install
+      - run: |
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
+
   nodelatest:
     docker:
       # specify the version you desire here
@@ -143,6 +167,14 @@ jobs:
 
       # run tests!
       - run: npm test
+
+      # package and install
+      - run: |
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
 
 workflows:
   version: 2

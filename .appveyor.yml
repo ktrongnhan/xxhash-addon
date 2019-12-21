@@ -31,6 +31,16 @@ test_script:
   - npm --version
   - npm test
 
+after_test:
+  - npm version 1.0.0
+  - npm pack
+  - cd ..
+  - mkdir package_install
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - copy xxhash-addon-1.0.0.tgz %APPVEYOR_BUILD_FOLDER%\..\package_install
+  - cd ..\package_install
+  - npm install xxhash-addon-1.0.0.tgz
+
 build: off
 shallow_clone: true
 version: "{build}"
