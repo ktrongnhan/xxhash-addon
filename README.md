@@ -23,7 +23,21 @@ Features
 
 Installation
 =========
-npm install xxhash-addon
+`npm install xxhash-addon`
+
+Note: This native addon requires recompiling. If you do not have Node.js building toolchain installed then you must install them first
+
+* On a Windows machine
+
+`npm install --global --production windows-build-tools`
+
+* On a Debian/Ubuntu machine
+
+`sudo apt-get install python g++ make`
+
+* On a RHEL/CentOS machine
+
+If you are on RHEL 6 or 7, you would need to install GCC/G++ >= 6.3 via `devtoolset-` for the module to compile. See [SCL](https://www.softwarecollections.org/en/scls/rhscl/devtoolset-6/).
 
 In comparison to other implementations/bindings
 =========
