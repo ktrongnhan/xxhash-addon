@@ -1,10 +1,10 @@
 {
   "name": "xxhash-addon",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
   "scripts": {
-    "install": "node-gyp rebuild --target=v8.6.0 --verbose --ensure",
+    "install": "node-gyp rebuild --ensure",
     "test": "jest"
   },
   "files": [
@@ -16,6 +16,7 @@
     "binding.gyp",
     "LICENSE",
     "README.md",
+    "CHANGELOG.md",
     "xxhash-addon.js"
   ],
   "repository": {
@@ -24,8 +25,7 @@
   },
   "keywords": [
     "xxhash",
-    "n-api",
-    "napi"
+    "hash"
   ],
   "author": "Nhan Khong <knhana7@gmail.com>",
   "license": "BSD-2-Clause",
@@ -35,5 +35,8 @@
   "homepage": "https://github.com/ktrongnhan/xxhash-addon#readme",
   "devDependencies": {
     "jest": "^24.9.0"
+  },
+  "engines": {
+    "node": ">=8.6.0 <9.0.0 || >=10.0.0"
   }
 }
