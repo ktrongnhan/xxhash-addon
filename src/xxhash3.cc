@@ -93,16 +93,15 @@ napi_value XXHash3::New(napi_env env, napi_callback_info info)
   napi_value jsthis;
   status = napi_get_cb_info(env, info, &argc, args, &jsthis, nullptr);
   assert(status == napi_ok);
-  if (argc < 1)
-  {
-    status = napi_throw_error(env, "", "You must specify seed value");
-    assert(status == napi_ok);
-    return nullptr;
-  }
 
   uint64_t seed = 0;
   void *secret = NULL;
   size_t buf_len;
+
+  if (argc == 0)
+  {
+    goto skip_all_type_checks;
+  }
 
   napi_valuetype valuetype;
   status = napi_typeof(env, args[0], &valuetype);
@@ -153,8 +152,6 @@ napi_value XXHash3::New(napi_env env, napi_callback_info info)
       else
       {
         std::ostringstream error_msg;
-        // error_msg << "seed must be 4-byte or 8-byte long; secret must be at least "
-        //           << XXH3_SECRET_SIZE_MIN << "-byte long";
         error_msg << "secret too small, must be at least " << XXH3_SECRET_SIZE_MIN << "-byte long";
         const std::string tmp_msg = error_msg.str();
         status = napi_throw_error(env, "", tmp_msg.c_str());
@@ -164,6 +161,7 @@ napi_value XXHash3::New(napi_env env, napi_callback_info info)
     }
   }
 
+skip_all_type_checks:
   XXHash3 *native_obj;
 
   if (secret != NULL)

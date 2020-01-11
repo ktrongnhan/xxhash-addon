@@ -295,11 +295,11 @@ const seed = 2654435761;
 const big_seed = Buffer.from([0x9e, 0x37, 0x79, 0xb1, 0x85, 0xeb, 0xca, 0x8d]);
 
 // Initialize all possible hashers
-const hasher32NoSeed = new XXHash32(0);
+const hasher32NoSeed = new XXHash32();
 const hasher32Seeded = new XXHash32(seed);
-const hasher64NoSeed = new XXHash64(0);
+const hasher64NoSeed = new XXHash64();
 const hasher64Seeded = new XXHash64(seed);
-const hasher3NoSeed = new XXHash3(0);
+const hasher3NoSeed = new XXHash3();
 const hasher3Seeded = new XXHash3(big_seed);
 const hasher3Secret = new XXHash3(secret);
 
@@ -310,11 +310,11 @@ describe('XXHash32', () => {
     }).toThrow('You must invoke a constructor call using \'new\'');
   });
 
-  test('empty argument list should throw', () => {
-    expect(() => {
-      const hasher = new XXHash32();
-    }).toThrow('You must specify seed value');
-  });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash32();
+  //   }).toThrow('You must specify seed value');
+  // });
 
   test('unexpected types should throw', () => {
     expect(() => {
@@ -326,6 +326,13 @@ describe('XXHash32', () => {
     expect(() => {
       const hasher = new XXHash32(Buffer.from([0x00, 0x00]));
     }).toThrow('seed must be 4-byte long');
+  });
+
+  test('default seed value is 0', () => {
+    const hasher0 = new XXHash32(0);
+    const h1 = hasher32NoSeed.hash(sanityBuffer).toString('hex');
+    const h2 = hasher0.hash(sanityBuffer).toString('hex');
+    expect(h2).toEqual(h1);
   });
 
   test('with seed = 0', () => {
@@ -357,11 +364,11 @@ describe('XXHash64', () => {
     }).toThrow('You must invoke a constructor call using \'new\'');
   });
 
-  test('empty argument list should throw', () => {
-    expect(() => {
-      const hasher = new XXHash64();
-    }).toThrow('You must specify seed value');
-  });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash64();
+  //   }).toThrow('You must specify seed value');
+  // });
 
   test('unexpected types should throw', () => {
     expect(() => {
@@ -373,6 +380,13 @@ describe('XXHash64', () => {
     expect(() => {
       const hasher = new XXHash64(Buffer.from([0x00, 0x00]));
     }).toThrow('seed must be 4-byte or 8-byte long');
+  });
+
+  test('default seed value is 0', () => {
+    const hasher0 = new XXHash64(0);
+    const h1 = hasher64NoSeed.hash(sanityBuffer).toString('hex');
+    const h2 = hasher0.hash(sanityBuffer).toString('hex');
+    expect(h2).toEqual(h1);
   });
 
   test('with seed = 0', () => {
@@ -405,11 +419,11 @@ describe('XXHash3', () => {
     }).toThrow('You must invoke a constructor call using \'new\'');
   });
 
-  test('empty argument list should throw', () => {
-    expect(() => {
-      const hasher = new XXHash3();
-    }).toThrow('You must specify seed value');
-  });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash3();
+  //   }).toThrow('You must specify seed value');
+  // });
 
   test('unexpected types should throw', () => {
     expect(() => {
@@ -421,6 +435,13 @@ describe('XXHash3', () => {
     expect(() => {
       const hasher = new XXHash3(Buffer.from([0x00, 0x00]));
     }).toThrow('secret too small');
+  });
+
+  test('default seed value is 0', () => {
+    const hasher0 = new XXHash3(0);
+    const h1 = hasher3NoSeed.hash(sanityBuffer).toString('hex');
+    const h2 = hasher0.hash(sanityBuffer).toString('hex');
+    expect(h2).toEqual(h1);
   });
 
   test('with seed = 0', () => {

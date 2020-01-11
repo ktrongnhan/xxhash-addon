@@ -70,14 +70,13 @@ napi_value XXHash64::New(napi_env env, napi_callback_info info)
   napi_value jsthis;
   status = napi_get_cb_info(env, info, &argc, args, &jsthis, nullptr);
   assert(status == napi_ok);
-  if (argc < 1)
-  {
-    status = napi_throw_error(env, "", "You must specify seed value");
-    assert(status == napi_ok);
-    return nullptr;
-  }
 
   uint64_t seed = 0;
+
+  if (argc == 0)
+  {
+    goto skip_all_type_checks;
+  }
 
   napi_valuetype valuetype;
   status = napi_typeof(env, args[0], &valuetype);
@@ -131,6 +130,7 @@ napi_value XXHash64::New(napi_env env, napi_callback_info info)
     }
   }
 
+skip_all_type_checks:
   XXHash64 *native_obj = new XXHash64(seed);
 
   native_obj->env_ = env;

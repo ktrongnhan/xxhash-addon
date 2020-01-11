@@ -54,10 +54,12 @@ Example of Usage
 =========
 
 ```javascript
-// Construct a new hasher and seed it 0
+// Construct a new hasher and seed it 0 (default seed value)
 // Note: constructors can take either JS Number or Buffer as their argument
 const { XXHash32, XXHash64, XXHash3 } = require('xxhash-addon');
-const hasher32 = new XXHash32(0); // equivalent to new XXHash32(Buffer.from[0x00, 0x00, 0x00, 0x00])
+const hasher32 = new XXHash32(0);
+// const hasher32 = new XXHash32(); // equivalent to the previous call
+// const hasher32 = new XXHash32(Buffer.alloc(4)); // equivalent to the previous call, too
 
 // Hash a string
 const salute = 'hello there';
@@ -75,7 +77,7 @@ hasher32.reset();
 
 // Using secret for XXH3
 // Same constructor call syntax, but hasher switches to secret mode whenever
-// it gets a buffer longer than 135 
+// it gets a buffer larger than 135 bytes
 const hasher3 = new XXHash3(require('fs').readFileSync('package-lock.json'));
 ```
 
@@ -83,11 +85,13 @@ API reference
 ===========
 ```
 (constructor) XXHash32([Number or 4-byte Buffer])
+(constructor) XXHash32() - using default seed value of 0
 XXHash32.update([Buffer]) - updates internal state for stream hashing
 XXHash32.digest() - produces hash of a stream
 XXHash32.reset() - resets internal state. You can use this rather than creating another hasher instance
 
 (constructor) XXHash64([Number or 4-byte Buffer or 8-byte Buffer])
+(constructor) XXHash64() - using default seed value of 0
 XXHash64.update([Buffer]) - updates internal state for stream hashing
 XXHash64.digest() - produces hash of a stream
 XXHash64.reset() - resets internal state. You can use this rather than creating another hasher instance
@@ -95,6 +99,7 @@ XXHash64.reset() - resets internal state. You can use this rather than creating 
 
 (Experimental)
 (constructor) XXHash3([Number or 4-byte Buffer or 8-byte Buffer]) - using seed
+(constructor) XXHash3() - using default seed value of 0
 (constructor) XXHash3([longer-than-135-byte Buffer]) - using secret
 XXHash3.update([Buffer]) - updates internal state for stream hashing
 XXHash3.digest() - produces hash of a stream
