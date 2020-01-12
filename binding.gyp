@@ -9,7 +9,8 @@
             "sources": ["src/addon.cc",
                         "src/xxhash32.cc",
                         "src/xxhash64.cc",
-                        "src/xxhash3.cc"]
+                        "src/xxhash3.cc",
+                        "src/xxhash128.cc"]
         }
     ]
 }

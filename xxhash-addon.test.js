@@ -1,4 +1,4 @@
-const { XXHash32, XXHash64, XXHash3 } = require('xxhash-addon');
+const { XXHash32, XXHash64, XXHash3, XXHash128 } = require('xxhash-addon');
 
 const sanityBuffer = Buffer.from([
   0x00, 0x52, 0x92, 0x9b, 0xb7, 0x32, 0xa3, 0x24,
@@ -297,11 +297,16 @@ const big_seed = Buffer.from([0x9e, 0x37, 0x79, 0xb1, 0x85, 0xeb, 0xca, 0x8d]);
 // Initialize all possible hashers
 const hasher32NoSeed = new XXHash32();
 const hasher32Seeded = new XXHash32(seed);
+
 const hasher64NoSeed = new XXHash64();
 const hasher64Seeded = new XXHash64(seed);
+
 const hasher3NoSeed = new XXHash3();
 const hasher3Seeded = new XXHash3(big_seed);
 const hasher3Secret = new XXHash3(secret);
+
+const hasher128NoSeed = new XXHash128();
+const hasher128Seeded = new XXHash128(seed);
 
 describe('XXHash32', () => {
   test('non-constructor-call should throw', () => {
@@ -468,5 +473,58 @@ describe('XXHash3', () => {
     hasher3Secret.reset();
     hasher3Secret.update(sanityBuffer.slice(0, 1));
     expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('7F69735D618DB3F0');
+  });
+});
+
+describe('XXHash128', () => {
+
+  test('non-constructor-call should throw', () => {
+    expect(() => {
+      const hasher = XXHash128();
+    }).toThrow('You must invoke a constructor call using \'new\'');
+  });
+
+  test('unexpected types should throw', () => {
+    expect(() => {
+      const hasher = new XXHash128('hello');
+    }).toThrow('seed must be a buffer or a number');
+  });
+
+  test('unexpected buffers should throw', () => {
+    expect(() => {
+      const hasher = new XXHash128(Buffer.from([0x00, 0x00]));
+    }).toThrow('secret too small');
+  });
+
+  test('default seed value is 0', () => {
+    const hasher0 = new XXHash128(0);
+    const h1 = hasher128NoSeed.hash(sanityBuffer).toString('hex');
+    const h2 = hasher0.hash(sanityBuffer).toString('hex');
+    expect(h2).toEqual(h1);
+  });
+
+  test('with seed = 0', () => {
+    expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
+      .toBe('153C28D2A04DC8077198D737CFE7F386');
+    expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 2237)).toString('hex').toUpperCase())
+      .toBe('4BBD06FF7BFF0AB1970C91411533862C');
+  });
+
+  test('with seed', () => {
+    expect(hasher128Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
+      .toBe('89A7484EC876D5458E05996EC27C0F46');
+    expect(hasher128Seeded.hash(sanityBuffer.slice(0, 2237)).toString('hex').toUpperCase())
+      .toBe('14EBB157B84D9785D80282846D814431');
+  });
+
+  test('streaming', () => {
+    hasher128Seeded.update(sanityBuffer.slice(0, 1));
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89A7484EC876D5458E05996EC27C0F46');
+    hasher128Seeded.update(sanityBuffer.slice(1, 2237));
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('14EBB157B84D9785D80282846D814431');
+
+    hasher128Seeded.reset();
+    hasher128Seeded.update(sanityBuffer.slice(0, 1));
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89A7484EC876D5458E05996EC27C0F46');
   });
 });
