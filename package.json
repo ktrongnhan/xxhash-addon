@@ -5,7 +5,7 @@
   "main": "xxhash-addon.js",
   "scripts": {
     "install": "node-gyp rebuild --ensure",
-    "ci_install": "node-gyp rebuild --verbose --ensure",
+    "ci:install": "node-gyp rebuild --verbose --ensure",
     "test": "jest"
   },
   "files": [
