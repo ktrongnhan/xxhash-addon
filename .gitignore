@@ -4,3 +4,6 @@ node_modules
 
 # node-gyp build directory
 build
+
+# MacOS
+.DS_Store
