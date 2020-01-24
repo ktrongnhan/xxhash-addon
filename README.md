@@ -7,6 +7,7 @@ Yet another xxhash addon for Node.js
 |------------|---------|
 |Windows | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
 |Debian | [![CircleCI](https://circleci.com/gh/ktrongnhan/xxhash-addon.svg?style=svg)](https://circleci.com/gh/ktrongnhan/xxhash-addon) |
+|OSX | [![Build Status](https://travis-ci.org/ktrongnhan/xxhash-addon.svg?branch=master)](https://travis-ci.org/ktrongnhan/xxhash-addon) |
 
 Overview
 ===========
@@ -44,6 +45,10 @@ sudo apt-get install python g++ make
 * On a RHEL/CentOS machine
 
 If you are on RHEL 6 or 7, you would need to install GCC/G++ >= 6.3 via `devtoolset-` for the module to compile. See [SCL](https://www.softwarecollections.org/en/scls/rhscl/devtoolset-6/).
+
+* On a Mac
+
+Install `Xcode command line tools`
 
 In comparison to other implementations/bindings
 =========
