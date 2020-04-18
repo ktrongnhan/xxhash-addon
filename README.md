@@ -11,12 +11,12 @@ Yet another xxhash addon for Node.js
 
 Overview
 ===========
-`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) version 0.7.2, which has support for a new algorithm `XXH3` that has showed to outperform its predecessor.
+`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) version 0.7.3, which has support for a new algorithm `XXH3` that has showed to outperform its predecessor.
 
 Features
 ==========
-* `xxhash-addon` exposes xxhash's API in a friendly way for downstream consumption(see the Example of Usage section).
-* Covering all 4 variants of the algorithm: XXH32, XXH64, XXH3 64-bit, XXH3 128-bit (for experimental use only).
+* `xxhash-addon` exposes xxhash's API in a friendly way for downstream consumption (see the Example of Usage section).
+* Covering all 4 variants of the algorithm: XXH32, XXH64, XXH3 64-bit, XXH3 128-bit (XXH3 is for experimental use only).
 * Supporting XXH3 secret.
 * Consistently producing canonical (big-endian) form of hash values as per [xxhash's recommendation](https://github.com/Cyan4973/xxHash/blob/e2f4695899e831171ecd2e780078474712ea61d3/xxhash.h#L243).
 * The addon is extensively sanity-checked againts xxhash's sanity test suite to ensure that generated hashes are correct and align with xxhsum's (`xxhsum` is the official utility of xxhash). Check the file `xxhash-addon.test.js` to see how `xxhash-addon` is being tested.
@@ -28,7 +28,7 @@ Installation
 npm install xxhash-addon
 ```
 
-Note: This native addon requires recompiling. If you do not have Node.js building toolchain installed then you must install them first
+Note: This native addon requires recompiling. If you do not have Node.js building toolchain installed then you must install them first:
 
 * On a Windows machine
 
