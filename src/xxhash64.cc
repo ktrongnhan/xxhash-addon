@@ -111,7 +111,7 @@ napi_value XXHash64::New(napi_env env, napi_callback_info info)
       void *data;
       size_t buf_len;
       status = napi_get_buffer_info(env, args[0], &data, &buf_len);
-      assert(status == 0);
+      assert(status == napi_ok);
 
       if (buf_len == 4)
       {
@@ -124,7 +124,7 @@ napi_value XXHash64::New(napi_env env, napi_callback_info info)
       else
       {
         status = napi_throw_error(env, "", "seed must be 4-byte or 8-byte long");
-        assert(status == 0);
+        assert(status == napi_ok);
         return nullptr;
       }
     }

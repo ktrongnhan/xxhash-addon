@@ -135,7 +135,7 @@ napi_value XXHash128::New(napi_env env, napi_callback_info info)
       // got a buffer, now try to convert it into UInt64
       void *data;
       status = napi_get_buffer_info(env, args[0], &data, &buf_len);
-      assert(status == 0);
+      assert(status == napi_ok);
 
       if (buf_len == 4)
       {
@@ -155,7 +155,7 @@ napi_value XXHash128::New(napi_env env, napi_callback_info info)
         error_msg << "secret too small, must be at least " << XXH3_SECRET_SIZE_MIN << "-byte long";
         const std::string tmp_msg = error_msg.str();
         status = napi_throw_error(env, "", tmp_msg.c_str());
-        assert(status == 0);
+        assert(status == napi_ok);
         return nullptr;
       }
     }
