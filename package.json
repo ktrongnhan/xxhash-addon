@@ -11,12 +11,8 @@
   "files": [
     "/deps/xxHash/xxhash.h",
     "/deps/xxHash/xxh3.h",
-    "/deps/xxHash/LICENSE",
     "/src",
     "binding.gyp",
-    "LICENSE",
-    "README.md",
-    "CHANGELOG.md",
     "xxhash-addon.js"
   ],
   "repository": {
