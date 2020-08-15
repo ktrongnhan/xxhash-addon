@@ -450,29 +450,29 @@ describe('XXHash3', () => {
   });
 
   test('with seed = 0', () => {
-    expect(hasher3NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('B936EBAE24CB01C5');
-    expect(hasher3NoSeed.hash(sanityBuffer).toString('hex').toUpperCase()).toBe('62C631454648A193');
+    expect(hasher3NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('C44BDFF4074EECDB');
+    expect(hasher3NoSeed.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase()).toBe('6E73A90539CF2948');
   });
 
   test('with seed', () => {
-    expect(hasher3Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('F541B1905037FC39');
-    expect(hasher3Seeded.hash(sanityBuffer).toString('hex').toUpperCase()).toBe('6CF80A4BADEA4428');
+    expect(hasher3Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('032BE332DD766EF8');
+    expect(hasher3Seeded.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase()).toBe('757BA8487D1B5247');
   });
 
   test('with secret', () => {
-    expect(hasher3Secret.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('C3382C326E24E3CD');
-    expect(hasher3Secret.hash(sanityBuffer).toString('hex').toUpperCase()).toBe('887810081C32460A');
+    expect(hasher3Secret.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
+    expect(hasher3Secret.hash(sanityBuffer.slice(0, 2048)).toString('hex').toUpperCase()).toBe('D32E975821D6519F');
   });
 
   test('streaming', () => {
     hasher3Secret.update(sanityBuffer.slice(0, 1));
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('C3382C326E24E3CD');
-    hasher3Secret.update(sanityBuffer.slice(1));
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('887810081C32460A');
+    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
+    hasher3Secret.update(sanityBuffer.slice(1, 2048));
+    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('D32E975821D6519F');
 
     hasher3Secret.reset();
     hasher3Secret.update(sanityBuffer.slice(0, 1));
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('C3382C326E24E3CD');
+    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
   });
 });
 
@@ -505,26 +505,26 @@ describe('XXHash128', () => {
 
   test('with seed = 0', () => {
     expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
-      .toBe('2554B05763A71A05B936EBAE24CB01C5');
-    expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 2237)).toString('hex').toUpperCase())
-      .toBe('0CDABF3F3C98B371F403CEA1763CD9CC');
+      .toBe('A6CD5E9392000F6AC44BDFF4074EECDB');
+    expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase())
+      .toBe('CCB134FBFA7CE49D6E73A90539CF2948');
   });
 
   test('with seed', () => {
     expect(hasher128Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
-      .toBe('916831F4DCD21CF9CA57C628C04B45B8');
-    expect(hasher128Seeded.hash(sanityBuffer.slice(0, 2237)).toString('hex').toUpperCase())
-      .toBe('C81B751764BD53C5F3824EE446018851');
+      .toBe('89B99554BA22467CB53D5557E7F76F8D');
+    expect(hasher128Seeded.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase())
+      .toBe('50A1FE17B338995FED385111126FBA6F');
   });
 
   test('streaming', () => {
     hasher128Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('916831F4DCD21CF9CA57C628C04B45B8');
-    hasher128Seeded.update(sanityBuffer.slice(1, 2237));
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('C81B751764BD53C5F3824EE446018851');
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89B99554BA22467CB53D5557E7F76F8D');
+    hasher128Seeded.update(sanityBuffer.slice(1, 2240));
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('50A1FE17B338995FED385111126FBA6F');
 
     hasher128Seeded.reset();
     hasher128Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('916831F4DCD21CF9CA57C628C04B45B8');
+    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89B99554BA22467CB53D5557E7F76F8D');
   });
 });
