@@ -1,6 +1,9 @@
 /*
- * sort.cc - C++ sort functions
- * Copyright (C) 2019-2020 Yann Collet
+ * Multi-include test program
+ * ensure that pixel, bool and vector are not redefined
+ *
+ * Copyright (C) 2020 Yann Collet
+ *
  * GPL v2 License
  *
  * This program is free software; you can redistribute it and/or modify
@@ -22,38 +25,38 @@
  *   - xxHash source repository: https://github.com/Cyan4973/xxHash
  */
 
-/*
- * C++ sort functions tend to run faster than C ones due to templates allowing
- * inline optimizations.
- * Also, glibc's qsort() seems to inflate memory usage, resulting in OOM
- * crashes on the test server.
+/* gcc's altivec.h, included for the VSX code path,
+ * may, in some circumstances, redefine
+ * bool, vector and pixel keywords.
+ *
+ * This unit checks if it happens.
+ * It's a compile test.
+ * The test is mostly meaningful for PPC target using altivec.h
+ * hence XXH_VECTOR == XXH_VSX
  */
 
-#include <algorithm>  // std::sort
-#define XXH_INLINE_ALL  // XXH128_cmp
-#include <xxhash.h>
+#define BOOL_VALUE 32123456
+#define bool BOOL_VALUE
 
-#include "sort.hh"
+#define VECTOR_VALUE 374464784
+#define vector VECTOR_VALUE
 
-void sort64(uint64_t* table, size_t size)
-{
-    std::sort(table, table + size);
-}
+#define PIXEL_VALUE 5846841
+#define pixel PIXEL_VALUE
 
-#include <stdlib.h>  // qsort
+#define XXH_INLINE_ALL
+#include "../xxhash.h"
 
-void sort128(XXH128_hash_t* table, size_t size)
-{
-#if 0
-    // C++ sort using a custom function object
-    struct {
-        bool operator()(XXH128_hash_t a, XXH128_hash_t b) const
-        {
-            return XXH128_cmp(&a, &b);
-        }
-    } customLess;
-    std::sort(table, table + size, customLess);
-#else
-    qsort(table, size, sizeof(*table), XXH128_cmp);
+#if (bool != BOOL_VALUE)
+#  error "bool macro was redefined !"
 #endif
-}
+
+#if (vector != VECTOR_VALUE)
+#  error "vector macro was redefined !"
+#endif
+
+#if (pixel != PIXEL_VALUE)
+#  error "pixel macro was redefined !"
+#endif
+
+int g_nonEmptyUnit = 0;
