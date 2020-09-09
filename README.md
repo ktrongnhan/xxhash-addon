@@ -11,12 +11,12 @@ Yet another xxhash addon for Node.js
 
 Overview
 ===========
-`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) version 0.7.3, which has support for a new algorithm `XXH3` that has showed to outperform its predecessor.
+`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) version 0.8.0, which has support for a new algorithm `XXH3` that has showed to outperform its predecessor.
 
 Features
 ==========
 * `xxhash-addon` exposes xxhash's API in a friendly way for downstream consumption (see the Example of Usage section).
-* Covering all 4 variants of the algorithm: XXH32, XXH64, XXH3 64-bit, XXH3 128-bit (XXH3 is for experimental use only).
+* Covering all 4 variants of the algorithm: XXH32, XXH64, XXH3 64-bit, XXH3 128-bit.
 * Supporting XXH3 secret.
 * Consistently producing canonical (big-endian) form of hash values as per [xxhash's recommendation](https://github.com/Cyan4973/xxHash/blob/e2f4695899e831171ecd2e780078474712ea61d3/xxhash.h#L243).
 * The addon is extensively sanity-checked againts xxhash's sanity test suite to ensure that generated hashes are correct and align with xxhsum's (`xxhsum` is the official utility of xxhash). Check the file `xxhash-addon.test.js` to see how `xxhash-addon` is being tested.
@@ -111,7 +111,7 @@ XXHash64.update([Buffer]) - updates internal state for stream hashing
 XXHash64.digest() - produces hash of a stream
 XXHash64.reset() - resets internal state. You can use this rather than creating another hasher instance
 ```
-### XXHash3 - Experimental: API should remain stable but hash values may differ
+### XXHash3
 ```
 (constructor) XXHash3([Number or 4-byte Buffer or 8-byte Buffer]) - using seed
 (constructor) XXHash3() - using default seed value of 0
@@ -120,7 +120,7 @@ XXHash3.update([Buffer]) - updates internal state for stream hashing
 XXHash3.digest() - produces hash of a stream
 XXHash3.reset() - resets internal state. You can use this rather than creating another hasher instance
 ```
-### XXHash128 - Experimental: API should remain stable but hash values may differ
+### XXHash128
 ```
 (constructor) XXHash128([Number or 4-byte Buffer or 8-byte Buffer]) - using seed
 (constructor) XXHash128() - using default seed value of 0
