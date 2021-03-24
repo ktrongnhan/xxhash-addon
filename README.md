@@ -13,7 +13,7 @@ Overview
 ===========
 `xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) `v0.8.0`, which has support for a new algorithm `XXH3` that has showed to outperform its predecessor.
 
-__IMPORTANT__: As of `v0.8.0`, XXH3 and XXH123 are now considered stable. Rush to the upstream [CHANGELOG](https://github.com/Cyan4973/xxHash/blob/v0.8.0/CHANGELOG) for the formal announcement!
+__IMPORTANT__: As of `v0.8.0`, XXH3 and XXH123 are now considered stable. Rush to the upstream [CHANGELOG](https://github.com/Cyan4973/xxHash/blob/v0.8.0/CHANGELOG) for the formal announcement! `xxhash-addon v1.4.0` is packed with `xxhash v0.8.0`.
 
 Features
 ==========
