@@ -3,6 +3,7 @@
   "version": "1.4.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
+  "typings": "index.d.ts",  
   "scripts": {
     "install": "node-gyp rebuild --ensure",
     "ci:install": "node-gyp rebuild --verbose --ensure",
@@ -13,6 +14,7 @@
     "/deps/xxHash/xxh3.h",
     "/src",
     "binding.gyp",
+    "index.d.ts",
     "xxhash-addon.js"
   ],
   "repository": {
