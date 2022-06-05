@@ -3,7 +3,7 @@
   "version": "1.4.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
-  "typings": "index.d.ts",  
+  "typings": "index.d.ts",
   "scripts": {
     "install": "node-gyp rebuild --ensure",
     "ci:install": "node-gyp rebuild --verbose --ensure",
@@ -31,10 +31,10 @@
     "url": "https://github.com/ktrongnhan/xxhash-addon/issues"
   },
   "homepage": "https://github.com/ktrongnhan/xxhash-addon#readme",
-  "devDependencies": {
-    "jest": "^25.3.0"
-  },
   "engines": {
     "node": ">=8.6.0 <9.0.0 || >=10.0.0"
+  },
+  "devDependencies": {
+    "jest": "^28.1.0"
   }
 }
