@@ -7,7 +7,6 @@ Yet another xxhash addon for Node.js
 |------------|---------|
 |Windows | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
 |Debian | [![CircleCI](https://circleci.com/gh/ktrongnhan/xxhash-addon.svg?style=svg)](https://circleci.com/gh/ktrongnhan/xxhash-addon) |
-|OSX | [![Build Status](https://travis-ci.org/ktrongnhan/xxhash-addon.svg?branch=master)](https://travis-ci.org/ktrongnhan/xxhash-addon) |
 
 Overview
 ===========
