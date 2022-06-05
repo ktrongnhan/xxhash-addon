@@ -4,49 +4,49 @@
 #
 version: 2.1
 jobs:
-  node8:
-    docker:
-      # specify the version you desire here
-      - image: circleci/node:8.6
+  # node8:
+  #   docker:
+  #     # specify the version you desire here
+  #     - image: circleci/node:8.6
 
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+  #     # Specify service dependencies here if necessary
+  #     # CircleCI maintains a library of pre-built images
+  #     # documented at https://circleci.com/docs/2.0/circleci-images/
+  #     # - image: circleci/mongo:3.4.4
 
-    working_directory: ~/xxhash-addon
+  #   working_directory: ~/xxhash-addon
 
-    steps:      
-      - checkout
-      - run: sudo apt-get install python g++ make
-      - run: node --version
-      - run: npm --version
+  #   steps:
+  #     - checkout
+  #     - run: sudo apt-get install python g++ make
+  #     - run: node --version
+  #     - run: npm --version
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+  #     # Download and cache dependencies
+  #     - restore_cache:
+  #         keys:
+  #           - v1-dependencies-{{ checksum "package.json" }}
+  #           # fallback to using the latest cache if no exact match is found
+  #           - v1-dependencies-
 
-      - run: npm run ci:install
+  #     - run: npm run ci:install
 
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+  #     - save_cache:
+  #         paths:
+  #           - node_modules
+  #         key: v1-dependencies-{{ checksum "package.json" }}
 
-      # run tests!
-      - run: npm install jest --save-dev
-      - run: npm test
+  #     # run tests!
+  #     - run: npm install jest --save-dev
+  #     - run: npm test
 
-      # package and install
-      - run: |
-          npm pack
-          mkdir ~/package_install
-          cp xxhash-addon*.tgz ~/package_install
-          cd ~/package_install
-          npm install xxhash-addon*.tgz
+  #     # package and install
+  #     - run: |
+  #         npm pack
+  #         mkdir ~/package_install
+  #         cp xxhash-addon*.tgz ~/package_install
+  #         cd ~/package_install
+  #         npm install xxhash-addon*.tgz
 
   node10:
     docker:
