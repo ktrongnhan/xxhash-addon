@@ -3,21 +3,7 @@ branches:
     - master
 environment:
   matrix:
-    # - nodejs_version: "10"
-    #   APPVEYOR_BUILD_WORKER_IMAGE: Ubuntu1604
-    - nodejs_version: "8"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      GYP_MSVS_VERSION: "2015"
-    - nodejs_version: "10"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-      GYP_MSVS_VERSION: "2015"
-    - nodejs_version: "12"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-      GYP_MSVS_VERSION: "2017"
-    - nodejs_version: "12"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-      GYP_MSVS_VERSION: "2019"
-    - nodejs_version: "13"
+    - nodejs_version: "16"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       GYP_MSVS_VERSION: "2019"
 

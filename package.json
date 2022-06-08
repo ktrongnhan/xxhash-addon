@@ -10,8 +10,7 @@
     "test": "jest"
   },
   "files": [
-    "/deps/xxHash/xxhash.h",
-    "/deps/xxHash/xxh3.h",
+    "/xxHash/xxhash.h",
     "/src",
     "binding.gyp",
     "index.d.ts",

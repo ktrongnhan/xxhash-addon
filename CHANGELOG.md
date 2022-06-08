@@ -1,3 +1,15 @@
+## v1.5.0
+### Dependencies
+- Upgrading `xxhash` to `v0.8.1`
+### Features
+- Support for TypeScript - https://github.com/ktrongnhan/xxhash-addon/pull/14
+
+
+## v1.4.0
+### Dependencies
+- Upgrading `xxhash` to `v0.8.0`
+
+
 ## v1.3.0
 ### Dependencies
 - Upgrading `xxhash` to `v0.7.3`
