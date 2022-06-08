@@ -33,5 +33,5 @@ after_test:
   - npm install xxhash-addon-1.0.0.tgz
 
 build: off
-shallow_clone: true
+# shallow_clone: true
 version: "{build}"
