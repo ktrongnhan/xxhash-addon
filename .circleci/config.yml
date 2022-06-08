@@ -18,6 +18,7 @@ jobs:
 
     steps:      
       - checkout
+      - run: git submodule init
       - run: sudo apt-get install python g++ make
       - run: node --version
       - run: npm --version
