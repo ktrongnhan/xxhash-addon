@@ -2,7 +2,7 @@
   "targets": [{
     "target_name": "addon",
     "include_dirs": [
-      "deps/xxHash",
+      "xxHash",
       "src"
     ],
     "sources": [
