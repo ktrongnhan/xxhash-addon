@@ -27,9 +27,9 @@ after_test:
   - cd ..
   - mkdir package_install
   - cd %APPVEYOR_BUILD_FOLDER%
-  - copy xxhash-addon-*.tgz %APPVEYOR_BUILD_FOLDER%\..\package_install
+  - copy /b xxhash-addon-*.tgz %APPVEYOR_BUILD_FOLDER%\..\package_install\xxhash-addon.tgz
   - cd ..\package_install
-  - npm install xxhash-addon-*.tgz
+  - npm install xxhash-addon.tgz
 
 build: off
 # shallow_clone: true
