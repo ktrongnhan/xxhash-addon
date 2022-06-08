@@ -23,14 +23,13 @@ test_script:
   - npm test
 
 after_test:
-  - npm version 1.0.0
   - npm pack
   - cd ..
   - mkdir package_install
   - cd %APPVEYOR_BUILD_FOLDER%
-  - copy xxhash-addon-1.0.0.tgz %APPVEYOR_BUILD_FOLDER%\..\package_install
+  - copy /b xxhash-addon-*.tgz %APPVEYOR_BUILD_FOLDER%\..\package_install\xxhash-addon.tgz
   - cd ..\package_install
-  - npm install xxhash-addon-1.0.0.tgz
+  - npm install xxhash-addon.tgz
 
 build: off
 # shallow_clone: true
