@@ -12,7 +12,7 @@ install:
   - ps: if (!$isLinux) { Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) x64 }
   # - sh: sudo apt-get install python g++ make
   # - sh: nvm install $nodejs_version
-  - git submodule init
+  - git submodule update --init
   - npm run ci:install
 
 test_script:
