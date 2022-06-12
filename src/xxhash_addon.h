@@ -179,6 +179,7 @@
          return NULL;                                                         \
       }                                                                       \
       obj->secret_ = memcpy(obj->secret_, data, buf_len);                     \
+      obj->secretSize_ = buf_len;                                             \
       INTERNAL_RESET##_withSecret(obj->state_, obj->secret_, buf_len);        \
    }                                                                          \
    else                                                                       \
