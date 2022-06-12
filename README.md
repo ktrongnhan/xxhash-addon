@@ -131,7 +131,7 @@ Everything should be set up already. Just pull from the release branch of xxHash
 ```bash
 git submodule update --remote
 git status
-git add -u
+git add xxHash
 git commit -m "Bump xxHash to..."
 git push origin your_name/upgrade_deps
 ```
