@@ -61,7 +61,9 @@ Features
 * Supporting XXH3 secret.
 * Consistently producing canonical (big-endian) form of hash values as per [xxhash's recommendation](https://github.com/Cyan4973/xxHash/blob/e2f4695899e831171ecd2e780078474712ea61d3/xxhash.h#L243).
 * The addon is extensively sanity-checked againts xxhash's sanity test suite to ensure that generated hashes are correct and align with xxhsum's (`xxhsum` is the official utility of xxhash). Check the file `xxhash-addon.test.js` to see how `xxhash-addon` is being tested.
+* Benchmarks are publicly available.
 * Minimal dependency: the package does not depend on any other npm packages.
+* TypeScript support.
 
 Installation
 =========
@@ -69,7 +71,7 @@ Installation
 npm install xxhash-addon
 ```
 
-Note: This native addon requires recompiling. If you do not have Node.js building toolchain installed then you must install them first:
+Note: This native addon requires recompiling. If you do not have Node.js building toolchain then you must install them first:
 
 * On a Windows machine
 
