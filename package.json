@@ -5,9 +5,10 @@
   "main": "xxhash-addon.js",
   "typings": "index.d.ts",
   "scripts": {
-    "install": "node-gyp rebuild --ensure",
-    "ci:install": "node-gyp rebuild --verbose --ensure",
-    "test": "jest"
+    "install": "node-gyp rebuild --ensure --jobs max",
+    "ci:install": "node-gyp rebuild --verbose --ensure --jobs max",
+    "test": "jest",
+    "debug:install": "DEBUG=1 node-gyp rebuild --verbose --ensure --jobs max"
   },
   "files": [
     "/xxHash/xxhash.h",
