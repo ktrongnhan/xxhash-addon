@@ -54,7 +54,7 @@
                 "MinimalRebuild": "false",
                 "OmitFramePointers": "false",
                 "Optimization": 0, # /Od, no optimization
-                "CompileAs": 1 # /TC, compile as C
+                # "CompileAs": 1 # /TC, compile as C
               },
               "VCLinkerTool": {
                 "LinkIncremental": 2 # enable incremental linking
@@ -76,7 +76,7 @@
                 "InlineFunctionExpansion": 2, # /Ob2, inline anything eligible
                 "OmitFramePointers": "true",
                 "Optimization": 3, # /Ox, full optimization
-                "CompileAs": 1 # /TC, compile as C
+                # "CompileAs": 1 # /TC, compile as C
               }
             },
             "xcode_settings": {
