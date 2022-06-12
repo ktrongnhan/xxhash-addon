@@ -63,7 +63,7 @@
           },
           {
             "cflags": [
-              "-O3",
+              "-O2",
               "-std=c89",
               "-Wall",
               "-Werror",
@@ -75,14 +75,14 @@
                 "FavorSizeOrSpeed": 1, # /Ot, favor speed over size
                 "InlineFunctionExpansion": 2, # /Ob2, inline anything eligible
                 "OmitFramePointers": "true",
-                "Optimization": 3, # /Ox, full optimization
+                "Optimization": 2, # /Ox, full optimization
                 # "CompileAs": 1 # /TC, compile as C
               }
             },
             "xcode_settings": {
               "GCC_OPTIMIZATION_LEVEL": "3", # stop gyp from defaulting to -Os
               "OTHER_CFLAGS": [
-                "-O3",
+                "-O2",
                 "-std=c89",
                 "-Wall",
                 "-Werror",
