@@ -11,7 +11,7 @@
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wc90-c99-compat"
 #pragma GCC diagnostic ignored "-Wendif-labels"
-#pragma GCC diagnostic ignored "-pedantic"
+#pragma GCC diagnostic ignored "-Wpedantic"
 #endif
 #include <node_api.h>
 #if defined(__clang__)
