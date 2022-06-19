@@ -39,6 +39,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+      - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
       - run: npm test
       - run: npm run benchmark
 
@@ -86,6 +87,7 @@ jobs:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
+      - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
       - run: npm test
       - run: npm run benchmark
 
