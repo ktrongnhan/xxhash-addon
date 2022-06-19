@@ -3,15 +3,19 @@
 
 #include <stdlib.h>
 
+#if defined(__clang__)
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wc99-extensions"
-#pragma clang diagnostic ignored "-Wcomment"
+#pragma clang diagnostic ignored "-Wall"
+#elif defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wc99-extensions"
-#pragma GCC diagnostic ignored "-Wcomment"
+#pragma GCC diagnostic ignored "-Wall"
+#endif
 #include <node_api.h>
+#if defined(__clang__)
 #pragma clang diagnostic pop
+#elif defined(__GNUC__)
 #pragma GCC diagnostic pop
+#endif
 
 #define XXH_INLINE_ALL
 #include "xxhash.h"
