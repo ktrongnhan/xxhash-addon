@@ -162,6 +162,7 @@ static ADDON_errorcode type_check_data_buffer(napi_env env, napi_value args[],
          hasher->state_ = NULL;                                               \
       }                                                                       \
       napi_delete_reference(hasher->env_, hasher->wrapper_);                  \
+      free(hasher);                                                           \
    }
 
 #define DESTROY(WRAPPER_TYPE, INTERNAL_FREESTATE)                             \
@@ -174,6 +175,7 @@ static ADDON_errorcode type_check_data_buffer(napi_env env, napi_value args[],
          hasher->state_ = NULL;                                               \
       }                                                                       \
       napi_delete_reference(hasher->env_, hasher->wrapper_);                  \
+      free(hasher);                                                           \
    }
 
 #define COMMON_SETUP(WRAPPER_TYPE)                                            \
