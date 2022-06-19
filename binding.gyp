@@ -23,11 +23,11 @@
             "cflags": [
               "-g",
               "-O0",
-              "-std=c89",
+              "-std=c99", # C99 is for GCC on Linux to compile. If using clang on Linux, switch to c89.
               "-pedantic",
               "-Wall",
               "-Wextra",
-              # "-Werror", # GCC doesn't have an easy way to ignore warnings from some Node.js headers which are not C89 compliant, so disable this. Compliance can be covered on macOS which uses clang by default.
+              "-Werror",
               "-Wno-long-long",
               "-fsanitize=address",
               "-fsanitize=undefined",
