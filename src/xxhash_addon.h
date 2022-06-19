@@ -5,10 +5,13 @@
 
 #if defined(__clang__)
 #pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wall"
+#pragma clang diagnostic ignored "-Wc99-extensions"
+#pragma clang diagnostic ignored "-Wcomment"
 #elif defined(__GNUC__)
 #pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wall"
+#pragma GCC diagnostic ignored "-Wc90-c99-compat"
+#pragma GCC diagnostic ignored "-Wendif-labels"
+#pragma GCC diagnostic ignored "-pedantic"
 #endif
 #include <node_api.h>
 #if defined(__clang__)

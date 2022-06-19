@@ -10,14 +10,15 @@
       "src/xxhash3_addon.c",
       "src/xxhash64_addon.c",
       "src/xxhash32_addon.c"
-    ]
+    ],
+    # "defines": [ "ENABLE_RUNTIME_TYPE_CHECK" ]
   },
   "targets": [
     {
       "target_name": "addon",
       "conditions": [
         [
-          "'<!(echo $DEBUG)'=='1'",
+          "(OS!='win' and '<!(echo $DEBUG)'=='1') or (OS=='win' and '<!(echo %DEBUG%)'=='1')",
           {
             "cflags": [
               "-g",
@@ -26,7 +27,7 @@
               "-pedantic",
               "-Wall",
               "-Wextra",
-              "-Werror",
+              # "-Werror", # GCC doesn't have an easy way to ignore warnings from some Node.js headers which are not C89 compliant, so disable this. Compliance can be covered on macOS which uses clang by default.
               "-Wno-long-long",
               "-fsanitize=address",
               "-fsanitize=undefined",
