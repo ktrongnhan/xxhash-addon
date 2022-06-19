@@ -297,17 +297,10 @@ buf_seed.writeUint32BE(seed);
 const big_seed = Buffer.from([0x9e, 0x37, 0x79, 0xb1, 0x85, 0xeb, 0xca, 0x8d]);
 
 // Initialize all possible hashers
-// const hasher32NoSeed = new XXHash32();
 const hasher32Seeded = new XXHash32(buf_seed);
-
-// const hasher64NoSeed = new XXHash64();
 const hasher64Seeded = new XXHash64(buf_seed);
-
-// const hasher3NoSeed = new XXHash3();
 const hasher3Seeded = new XXHash3(big_seed);
 const hasher3Secret = new XXHash3(secret);
-
-// const hasher128NoSeed = new XXHash128();
 const hasher128Seeded = new XXHash128(buf_seed);
 
 describe('XXHash32', () => {
@@ -317,23 +310,23 @@ describe('XXHash32', () => {
   //     }).toThrow('You must invoke a constructor call using \'new\'');
   //   });
 
-  //   // test('empty argument list should throw', () => {
-  //   //   expect(() => {
-  //   //     const hasher = new XXHash32();
-  //   //   }).toThrow('You must specify seed value');
-  //   // });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash32();
+  //   }).toThrow('You must specify seed value');
+  // });
 
-  //   test('unexpected types should throw', () => {
-  //     expect(() => {
-  //       const hasher = new XXHash32('hello');
-  //     }).toThrow('seed must be a buffer or a number');
-  //   });
+  // test('unexpected types should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash32('hello');
+  //   }).toThrow('seed must be a buffer or a number');
+  // });
 
-  test('unexpected buffers should throw', () => {
-    expect(() => {
-      const hasher = new XXHash32(Buffer.from([0x00, 0x00]));
-    }).toThrow('seed must be 4 bytes');
-  });
+  // test('unexpected buffers should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash32(Buffer.from([0x00, 0x00]));
+  //   }).toThrow('seed must be 4 bytes');
+  // });
 
   //   test('default seed value is 0', () => {
   //     const hasher0 = new XXHash32(0);
@@ -342,10 +335,10 @@ describe('XXHash32', () => {
   //     expect(h2).toEqual(h1);
   //   });
 
-  //   test('with seed = 0', () => {
-  //     expect(hasher32NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('CF65B03E');
-  //     expect(hasher32NoSeed.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('5BD11DBD');
-  //   });
+  test('static one-shot hash', () => {
+    expect(XXHash32.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('CF65B03E');
+    expect(XXHash32.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('5BD11DBD');
+  });
 
   //   test('with seed', () => {
   //     expect(hasher32Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('B4545AA4');
@@ -360,6 +353,7 @@ describe('XXHash32', () => {
 
     hasher32Seeded.reset();
     hasher32Seeded.update(sanityBuffer.slice(0, 1));
+    hasher32Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
     expect(hasher32Seeded.digest().toString('hex').toUpperCase()).toBe('B4545AA4');
   });
 });
@@ -371,23 +365,23 @@ describe('XXHash64', () => {
   //     }).toThrow('You must invoke a constructor call using \'new\'');
   //   });
 
-  //   // test('empty argument list should throw', () => {
-  //   //   expect(() => {
-  //   //     const hasher = new XXHash64();
-  //   //   }).toThrow('You must specify seed value');
-  //   // });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash64();
+  //   }).toThrow('You must specify seed value');
+  // });
 
-  //   test('unexpected types should throw', () => {
-  //     expect(() => {
-  //       const hasher = new XXHash64('hello');
-  //     }).toThrow('seed must be a buffer or a number');
-  //   });
+  // test('unexpected types should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash64('hello');
+  //   }).toThrow('seed must be a buffer or a number');
+  // });
 
-  test('unexpected buffers should throw', () => {
-    expect(() => {
-      const hasher = new XXHash64(Buffer.from([0x00, 0x00]));
-    }).toThrow('seed must be 4 or 8 bytes');
-  });
+  // test('unexpected buffers should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash64(Buffer.from([0x00, 0x00]));
+  //   }).toThrow('seed must be 4 or 8 bytes');
+  // });
 
   //   test('default seed value is 0', () => {
   //     const hasher0 = new XXHash64(0);
@@ -396,10 +390,10 @@ describe('XXHash64', () => {
   //     expect(h2).toEqual(h1);
   //   });
 
-  //   test('with seed = 0', () => {
-  //     expect(hasher64NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('E934A84ADB052768');
-  //     expect(hasher64NoSeed.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('B641AE8CB691C174');
-  //   });
+  test('static one-shot hash', () => {
+    expect(XXHash64.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('E934A84ADB052768');
+    expect(XXHash64.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('B641AE8CB691C174');
+  });
 
   //   test('with seed', () => {
   //     expect(hasher64Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('5014607643A9B4C3');
@@ -414,6 +408,7 @@ describe('XXHash64', () => {
 
     hasher64Seeded.reset();
     hasher64Seeded.update(sanityBuffer.slice(0, 1));
+    hasher64Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
     expect(hasher64Seeded.digest().toString('hex').toUpperCase()).toBe('5014607643A9B4C3');
   });
 });
@@ -426,23 +421,23 @@ describe('XXHash3', () => {
   //     }).toThrow('You must invoke a constructor call using \'new\'');
   //   });
 
-  //   // test('empty argument list should throw', () => {
-  //   //   expect(() => {
-  //   //     const hasher = new XXHash3();
-  //   //   }).toThrow('You must specify seed value');
-  //   // });
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash3();
+  //   }).toThrow('You must specify seed value');
+  // });
 
-  //   test('unexpected types should throw', () => {
-  //     expect(() => {
-  //       const hasher = new XXHash3('hello');
-  //     }).toThrow('seed must be a buffer or a number');
-  //   });
+  // test('unexpected types should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash3('hello');
+  //   }).toThrow('seed must be a buffer or a number');
+  // });
 
-  test('unexpected buffers should throw', () => {
-    expect(() => {
-      const hasher = new XXHash3(Buffer.from([0x00, 0x00]));
-    }).toThrow('secret must be at least');
-  });
+  // test('unexpected buffers should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash3(Buffer.from([0x00, 0x00]));
+  //   }).toThrow('secret must be at least');
+  // });
 
   //   test('default seed value is 0', () => {
   //     const hasher0 = new XXHash3(0);
@@ -451,10 +446,10 @@ describe('XXHash3', () => {
   //     expect(h2).toEqual(h1);
   //   });
 
-  //   test('with seed = 0', () => {
-  //     expect(hasher3NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('C44BDFF4074EECDB');
-  //     expect(hasher3NoSeed.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase()).toBe('6E73A90539CF2948');
-  //   });
+  test('static one-shot hash', () => {
+    expect(XXHash3.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('C44BDFF4074EECDB');
+    expect(XXHash3.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase()).toBe('6E73A90539CF2948');
+  });
 
   test('streaming with seed', () => {
     hasher3Seeded.update(sanityBuffer.slice(0, 1));
@@ -464,6 +459,7 @@ describe('XXHash3', () => {
 
     hasher3Seeded.reset();
     hasher3Seeded.update(sanityBuffer.slice(0, 1));
+    hasher3Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
     expect(hasher3Seeded.digest().toString('hex').toUpperCase()).toBe('032BE332DD766EF8');
   });
 
@@ -480,6 +476,7 @@ describe('XXHash3', () => {
 
     hasher3Secret.reset();
     hasher3Secret.update(sanityBuffer.slice(0, 1));
+    hasher3Secret.update(Buffer.alloc(0)); // empty buffer should not update state
     expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
   });
 });
@@ -492,17 +489,23 @@ describe('XXHash128', () => {
   //   }).toThrow('You must invoke a constructor call using \'new\'');
   // });
 
+  // test('empty argument list should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash128();
+  //   }).toThrow('You must specify seed value');
+  // });
+
   // test('unexpected types should throw', () => {
   //   expect(() => {
   //     const hasher = new XXHash128('hello');
   //   }).toThrow('seed must be a buffer or a number');
   // });
 
-  test('unexpected buffers should throw', () => {
-    expect(() => {
-      const hasher = new XXHash128(Buffer.from([0x00, 0x00]));
-    }).toThrow('secret must be at least');
-  });
+  // test('unexpected buffers should throw', () => {
+  //   expect(() => {
+  //     const hasher = new XXHash128(Buffer.from([0x00, 0x00]));
+  //   }).toThrow('secret must be at least');
+  // });
 
   // test('default seed value is 0', () => {
   //   const hasher0 = new XXHash128(0);
@@ -511,12 +514,12 @@ describe('XXHash128', () => {
   //   expect(h2).toEqual(h1);
   // });
 
-  // test('with seed = 0', () => {
-  //   expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
-  //     .toBe('A6CD5E9392000F6AC44BDFF4074EECDB');
-  //   expect(hasher128NoSeed.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase())
-  //     .toBe('CCB134FBFA7CE49D6E73A90539CF2948');
-  // });
+  test('static one-shot hash', () => {
+    expect(XXHash128.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
+      .toBe('A6CD5E9392000F6AC44BDFF4074EECDB');
+    expect(XXHash128.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase())
+      .toBe('CCB134FBFA7CE49D6E73A90539CF2948');
+  });
 
   // test('with seed', () => {
   //   expect(hasher128Seeded.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
@@ -533,6 +536,7 @@ describe('XXHash128', () => {
 
     hasher128Seeded.reset();
     hasher128Seeded.update(sanityBuffer.slice(0, 1));
+    hasher128Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
     expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89B99554BA22467CB53D5557E7F76F8D');
   });
 });

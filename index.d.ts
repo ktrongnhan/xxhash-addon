@@ -1,39 +1,38 @@
 export interface XXHash {
   update(data: Buffer): void;
-  hash(data: Buffer): Buffer;
   digest(): Buffer;
   reset(): void;
 }
 
 export class XXHash32 implements XXHash {
-  constructor(seed?: Buffer | number);
+  constructor(seed: Buffer);
   update(data: Buffer): void;
-  hash(data: Buffer): Buffer;
   digest(): Buffer;
   reset(): void;
+  static hash(data: Buffer, seed: Buffer): Buffer;
 }
 
 export class XXHash64 implements XXHash {
-  constructor(seed?: Buffer | number);
+  constructor(seed: Buffer);
   update(data: Buffer): void;
-  hash(data: Buffer): Buffer;
   digest(): Buffer;
   reset(): void;
+  static hash(data: Buffer, seed: Buffer): Buffer;
 }
 
 export class XXHash3 implements XXHash {
-  constructor(seed?: Buffer | number);
+  constructor(seed_or_secret: Buffer);
   update(data: Buffer): void;
-  hash(data: Buffer): Buffer;
   digest(): Buffer;
   reset(): void;
+  static hash(data: Buffer, seed_or_secret: Buffer): Buffer;
 }
 
 export class XXHash128 implements XXHash {
-  constructor(seed?: Buffer | number);
+  constructor(seed_or_secret: Buffer);
   update(data: Buffer): void;
-  hash(data: Buffer): Buffer;
   digest(): Buffer;
   reset(): void;
+  static hash(data: Buffer, seed_or_secret: Buffer): Buffer;
 }
 
