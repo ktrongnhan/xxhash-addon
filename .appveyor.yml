@@ -17,7 +17,7 @@ environment:
 install:
   - ps: Install-Product node $env:nodejs_version x64
   - git submodule update --init
-  - npm run debug:install
+  - npm run debug:install:windows
 
 test_script:
   - echo %APPVEYOR_BUILD_WORKER_IMAGE%

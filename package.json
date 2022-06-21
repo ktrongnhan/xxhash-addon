@@ -9,7 +9,8 @@
     "ci:install": "node-gyp rebuild --verbose --ensure --jobs max",
     "test": "jest",
     "benchmark": "node benchmark.js",
-    "debug:install": "DEBUG=1 node-gyp rebuild --verbose --ensure --jobs max"
+    "debug:install": "DEBUG=1 node-gyp rebuild --verbose --ensure --jobs max",
+    "debug:install:windows": "set DEBUG=1 && node-gyp rebuild --verbose --ensure --jobs max && set DEBUG="
   },
   "files": [
     "/xxHash/xxhash.h",
