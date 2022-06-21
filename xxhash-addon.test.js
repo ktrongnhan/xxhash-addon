@@ -292,7 +292,7 @@ const secret = sanityBuffer.slice(startByte, endByte);
 
 const seed = 2654435761;
 const buf_seed = Buffer.alloc(4);
-buf_seed.writeUint32BE(seed);
+buf_seed.writeUInt32BE(seed);
 // big_seed is simply the UInt64 11400714785074694797
 const big_seed = Buffer.from([0x9e, 0x37, 0x79, 0xb1, 0x85, 0xeb, 0xca, 0x8d]);
 
