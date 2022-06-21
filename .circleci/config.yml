@@ -13,8 +13,7 @@ commands:
       - run: |
           node --version
           npm --version
-          gcc --version
-          g++ --version
+          <<parameters.compiler>> --version
 
       # Download and cache dependencies
       - restore_cache:
@@ -46,7 +45,7 @@ commands:
 jobs:
   nodelatest-gcc:
     docker:
-      - image: cimg/node:latest
+      - image: cimg/node:current
 
     working_directory: ~/xxhash-addon
 
@@ -56,7 +55,7 @@ jobs:
 
   nodelatest-clang:
     docker:
-      - image: cimg/node:latest
+      - image: cimg/node:current
 
     working_directory: ~/xxhash-addon
 
