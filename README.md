@@ -35,8 +35,7 @@ npm run benchmark
 |MD5 (node:crypto) |128 |19653 ||
 |SHA1 (node:crypto) |160 |4380 ||
 |BLAKE2s256 (node:crypto) |256 |18293 |BLAKE2s is so slow on Node.js. This is not aligned with [xxHash benchmark](https://github.com/Cyan4973/xxHash#benchmarks). |
-|XXH64 (node-xxhash) |64 |734 |Compiled with `-O2`.|
-|XXH64 (xxhash-addon) |64 |732 |Compilied with `-O2`. On ARM Mac, `xxhash-addon` wrapper of XXH64 is consistently as fast as `node-xxhash`. |
+|XXH64 (xxhash-addon) |64 |732 |Compilied with `-O2`.|
 |XXH3 (xxhash-addon) |64 | 350 |Compilied with `-O2`. On ARM, XXH3 is x2 times faster than XXH64 and x50 times faster than MD5. |
 
 
@@ -47,8 +46,7 @@ npm run benchmark
 |MD5 (node:crypto) |128 |15187 ||
 |SHA1 (node:crypto) |160 |10568 ||
 |BLAKE2s256 (node:crypto) |256 |27334 |BLAKE2s is so slow on Node.js. This is not aligned with [xxHash benchmark](https://github.com/Cyan4973/xxHash#benchmarks). |
-|XXH64 (node-xxhash) |64 |986 |Compiled with `-O2`.|
-|XXH64 (xxhash-addon) |64 |1038 |Compilied with `-O2`. On Intel Mac, `xxhash-addon` wrapper of XXH64 is consistently slower than `node-xxhash` by ~5%. |
+|XXH64 (xxhash-addon) |64 |1038 |Compilied with `-O2`. |
 |XXH3 (xxhash-addon) |64 | 767 |Compilied with `-O2`. Significant improvement on XXH3. Even more impressive on ARM. |
 
 
@@ -80,6 +78,12 @@ npm install --global --production windows-build-tools
 ```
 
 * On a Debian/Ubuntu machine
+
+```bash
+sudo apt-get install python clang make
+```
+
+OR if you prefer GCC
 
 ```bash
 sudo apt-get install python g++ make

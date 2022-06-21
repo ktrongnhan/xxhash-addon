@@ -1,122 +1,120 @@
-# Javascript Node CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-javascript/ for more details
-#
 version: 2.1
+
+commands:
+  parameterized_steps:
+    parameters:
+      compiler:
+        default: "g++"
+        type: string
+    steps:
+      - checkout
+      - run: git submodule update --init
+      - run: sudo apt-get install python <<parameters.compiler>> make
+      - run: |
+          node --version
+          npm --version
+          gcc --version
+          g++ --version
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            # fallback to using the latest cache if no exact match is found
+            - v1-dependencies-
+
+      - run: npm run debug:install
+      - run: npm install jest --save-dev
+
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+
+      # package and install
+      - run: |
+          npm run ci:install
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
+
 jobs:
-  nodelatest:
+  nodelatest-gcc:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:latest
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+      - image: cimg/node:latest
 
     working_directory: ~/xxhash-addon
 
     steps:      
-      - checkout
-      - run: git submodule update --init
-      - run: ls -lrth
-      - run: sudo apt-get install python g++ make
-      - run: node --version
-      - run: npm --version
+      - parameterized_steps:
+          compiler: "g++"
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
-
-      - run: npm run debug:install
-      - run: npm install jest --save-dev
-
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
-
-      # - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
-      # - run: npm test
-      # - run: npm run benchmark
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
-
-      # package and install
-      - run: |
-          npm run ci:install
-          npm pack
-          mkdir ~/package_install
-          cp xxhash-addon*.tgz ~/package_install
-          cd ~/package_install
-          npm install xxhash-addon*.tgz
-
-  node8:
+  nodelatest-clang:
     docker:
-      # specify the version you desire here
-      - image: circleci/node:8.6
-
-      # Specify service dependencies here if necessary
-      # CircleCI maintains a library of pre-built images
-      # documented at https://circleci.com/docs/2.0/circleci-images/
-      # - image: circleci/mongo:3.4.4
+      - image: cimg/node:latest
 
     working_directory: ~/xxhash-addon
 
     steps:      
-      - checkout
-      - run: git submodule update --init
-      - run: ls -lrth
-      - run: sudo apt-get install python g++ make
-      - run: node --version
-      - run: npm --version
+      - parameterized_steps:
+          compiler: "clang"
 
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "package.json" }}
-            # fallback to using the latest cache if no exact match is found
-            - v1-dependencies-
+  node8-gcc:
+    docker:
+      # specify the version you desire here
+      - image: cimg/node:8.6
 
-      - run: npm run debug:install
-      - run: npm install jest --save-dev
+    working_directory: ~/xxhash-addon
 
-      - save_cache:
-          paths:
-            - node_modules
-          key: v1-dependencies-{{ checksum "package.json" }}
+    steps:      
+      - parameterized_steps:
+          compiler: "clang"
 
-      # - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
-      # - run: npm test
-      # - run: npm run benchmark
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+  node8-clang:
+    docker:
+      # specify the version you desire here
+      - image: cimg/node:8.6
 
-      # package and install
-      - run: |
-          npm run ci:install
-          npm pack
-          mkdir ~/package_install
-          cp xxhash-addon*.tgz ~/package_install
-          cd ~/package_install
-          npm install xxhash-addon*.tgz
+    working_directory: ~/xxhash-addon
+
+    steps:      
+      - parameterized_steps:
+          compiler: "g++"
 
 workflows:
   version: 2
   build_all:
     jobs:
-      - nodelatest:
+      - nodelatest-gcc:
           filters:
             branches:
               only:
                 - master
                 - v2
-      - node8:
+      - nodelatest-clang:
           requires:
-            - nodelatest
+            - nodelatest-gcc
+          filters:
+            branches:
+              only:
+                - master
+                - v2
+      - node8-gcc:
+          requires:
+            - nodelatest-clang
+          filters:
+            branches:
+              only:
+                - master
+                - v2
+      - node8-clang:
+          requires:
+            - node8-gcc
           filters:
             branches:
               only:

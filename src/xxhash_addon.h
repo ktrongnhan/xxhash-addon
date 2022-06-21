@@ -3,16 +3,22 @@
 
 #include <stdlib.h>
 
+/* DON'T REMOVE: I use clang to verify this file is C89-compliant. */
+#if 0
 #if defined(__clang__)
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wc99-extensions"
 #pragma clang diagnostic ignored "-Wcomment"
 #endif
+#endif
 
 #include <node_api.h>
 
+/* DON'T REMOVE: I use clang to verify this file is C89-compliant. */
+#if 0
 #if defined(__clang__)
 #pragma clang diagnostic pop
+#endif
 #endif
 
 #define XXH_INLINE_ALL

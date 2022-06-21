@@ -23,12 +23,13 @@
             "cflags": [
               "-g",
               "-O0",
-              "-std=c99", # C99 is for GCC on Linux to compile. If using clang on Linux, switch to c89.
+              "-std=c99", # C99 is for GCC on Linux to compile. When using clang on Linux, switch to C89.
               "-pedantic",
               "-Wall",
               "-Wextra",
               "-Werror",
-              "-Wno-long-long",
+              "-Wstrict-prototypes",
+              # "-Wno-long-long",
               "-fsanitize=address",
               "-fsanitize=undefined",
             ],
@@ -41,12 +42,13 @@
               "OTHER_CFLAGS": [
                 "-g",
                 "-O0",
-                "-std=c89",
+                "-std=c99",
                 "-pedantic",
                 "-Wall",
                 "-Wextra",
                 "-Werror",
-                "-Wno-long-long",
+                "-Wstrict-prototypes",
+                # "-Wno-long-long",
                 "-fsanitize=address",
                 "-fsanitize=undefined",
               ],
@@ -72,7 +74,7 @@
           {
             "cflags": [
               "-O3",
-              "-std=c89",
+              "-std=c99",
             ],
             "msvs_settings": {
               "VCCLCompilerTool": {
@@ -84,7 +86,7 @@
               "GCC_OPTIMIZATION_LEVEL": "3", # stop gyp from defaulting to -Os
               "OTHER_CFLAGS": [
                 "-O3",
-                "-std=c89",
+                "-std=c99",
               ]
             }
           }
