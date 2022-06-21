@@ -42,8 +42,8 @@ jobs:
       # - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
       # - run: npm test
       # - run: npm run benchmark
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) node node_modules/jest/bin/jest.js
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) node benchmark.js
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       # package and install
       - run: |
@@ -92,8 +92,8 @@ jobs:
       # - run: export LD_PRELOAD=$(gcc -print-file-name=libasan.so)
       # - run: npm test
       # - run: npm run benchmark
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) node node_modules/jest/bin/jest.js
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) node benchmark.js
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       # package and install
       - run: |
