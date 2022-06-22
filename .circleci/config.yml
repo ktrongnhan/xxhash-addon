@@ -6,6 +6,9 @@ commands:
       compiler:
         default: "g++"
         type: string
+      jest_extra_params:
+        default: ""
+        type: string
     steps:
       - checkout
       - run: git submodule update --init
@@ -22,7 +25,7 @@ commands:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: npm run debug:install
+      - run: CC=$(which <<parameters.compiler>>) CXX=$(which <<parameters.compiler>>) DEBUG=1 node-gyp rebuild --debug --verbose --ensure --jobs max
       - run: npm install jest --save-dev
 
       - save_cache:
@@ -30,13 +33,16 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js --runInBand
+      - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
       # To speed up CI a bit, don't run asan builds with benchmark.js.
       # - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
+      - run: npm run ci:build
+      - run: npm test
+
       # package and install
       - run: |
-          npm run ci:install
+          npm run install
           npm pack
           mkdir ~/package_install
           cp xxhash-addon*.tgz ~/package_install
@@ -67,24 +73,26 @@ jobs:
   node8-gcc:
     docker:
       # specify the version you desire here
-      - image: cimg/node:8.17
+      - image: circleci/node:8.6
 
     working_directory: ~/xxhash-addon
 
     steps:      
       - parameterized_steps:
           compiler: "clang"
+          jest_extra_params: "--forceExit"
 
   node8-clang:
     docker:
       # specify the version you desire here
-      - image: cimg/node:8.17
+      - image: circleci/node:8.6
 
     working_directory: ~/xxhash-addon
 
     steps:      
       - parameterized_steps:
           compiler: "g++"
+          jest_extra_params: "--forceExit"
 
 workflows:
   version: 2

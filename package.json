@@ -6,11 +6,11 @@
   "typings": "index.d.ts",
   "scripts": {
     "install": "node-gyp rebuild --ensure --jobs max",
-    "ci:install": "node-gyp rebuild --verbose --ensure --jobs max",
     "test": "jest",
     "benchmark": "node benchmark.js",
-    "debug:install": "DEBUG=1 node-gyp rebuild --verbose --ensure --jobs max",
-    "debug:install:windows": "set DEBUG=1 && node-gyp rebuild --verbose --ensure --jobs max && set DEBUG="
+    "ci:build": "node-gyp rebuild --verbose --ensure --jobs max",
+    "debug:build": "DEBUG=1 node-gyp rebuild --debug --verbose --ensure --jobs max",
+    "debug:build:windows": "set DEBUG=1 && node-gyp rebuild --debug --verbose --ensure --jobs max && set DEBUG="
   },
   "files": [
     "/xxHash/xxhash.h",

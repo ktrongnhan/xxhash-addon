@@ -80,13 +80,7 @@ npm install --global --production windows-build-tools
 * On a Debian/Ubuntu machine
 
 ```bash
-sudo apt-get install python clang make
-```
-
-OR if you prefer GCC
-
-```bash
-sudo apt-get install python g++ make
+sudo apt-get update && sudo apt-get install python g++ make
 ```
 
 * On a RHEL/CentOS machine
@@ -108,12 +102,12 @@ This is for people who are interested in creating a PR.
 ```bash
 git clone https://github.com/ktrongnhan/xxhash-addon
 git submodule update --init
-npm install
-npm run debug:install
+npm install jest --save-dev
+npm run debug:build
 npm run benchmark
 npm test
 ```
-Note: `debug:install` compiles and links with Address Sanitizer (`-fsanitze=address`). `npm test` may not work out-of-the-box on macOS.
+Note: `debug:build` compiles and links with Address Sanitizer (`-fsanitze=address`). `npm test` may not work out-of-the-box on macOS.
 
 **How to debug asan build?**
 
@@ -121,6 +115,7 @@ You may have troubles running tests with asan build. Here is my snippet to get i
 
 Key takeaways:
 * If you see an error saying Asan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
+* Asan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
 
 ```bash
 $ lldb node node_modules/jest/bin/jest.js
@@ -128,6 +123,12 @@ $ lldb node node_modules/jest/bin/jest.js
 (lldb) breakpoint set -f src/addon.c -l 100
 (lldb) run
 (lldb) next
+```
+
+If you are debugging on Linux with GCC as your default compiler, here is a helpful oneliner:
+
+```bash
+$ LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js
 ```
 
 **How to upgrade xxHash?**
@@ -143,74 +144,90 @@ git push origin your_name/upgrade_deps
 ```
 
 
-Example of Usage (TODO: update for v2)
+Example of Usage
 =========
 
 ```javascript
-// Construct a new hasher and seed it 0 (default seed value)
-// Note: constructors can take either JS Number or Buffer as their argument
-const { XXHash32, XXHash64, XXHash3 } = require('xxhash-addon');
-const hasher32 = new XXHash32(0);
-// const hasher32 = new XXHash32(); // equivalent to the previous call
-// const hasher32 = new XXHash32(Buffer.alloc(4)); // equivalent to the previous call, too
+const { XXHash32, XXHash3 } = require('xxhash-addon');
 
-// Hash a string
+// Hash a string using the static one-shot method.
 const salute = 'hello there';
 const buf_salute = Buffer.from(salute);
-console.log(hasher32.hash(buf_salute));
+console.log(XXHash32.hash(buf_salute).toString('hex'));
 
-// Digest a byte-stream (hash a buffer piece by piece)
+// Digest a byte-stream (hash a buffer piece by piece).
+const hasher32 = new XXHash32(Buffer.from([0, 0, 0, 0]));
 hasher32.update(buf_salute.slice(0, 3));
-console.log(hasher32.digest());
+console.log(hasher32.digest().toString('hex'));
 hasher32.update(buf_salute.slice(3));
-console.log(hasher32.digest());
+console.log(hasher32.digest().toString('hex'));
 
-// Reset the hasher for another hashing
+// Reset the hasher for another hashing.
 hasher32.reset();
 
 // Using secret for XXH3
 // Same constructor call syntax, but hasher switches to secret mode whenever
-// it gets a buffer larger than 135 bytes
+// it gets a buffer larger than 135 bytes.
 const hasher3 = new XXHash3(require('fs').readFileSync('package-lock.json'));
 ```
 
-API reference (TODO: update for v2)
+API reference
 ===========
+
+### Streaming Interface
+```
+export interface XXHash {
+  update(data: Buffer): void;
+  digest(): Buffer;
+  reset(): void;
+}
+```
 
 ### XXHash32
 ```
-(constructor) XXHash32([Number or 4-byte Buffer])
-(constructor) XXHash32() - using default seed value of 0
-XXHash32.update([Buffer]) - updates internal state for stream hashing
-XXHash32.digest() - produces hash of a stream
-XXHash32.reset() - resets internal state. You can use this rather than creating another hasher instance
+export class XXHash32 implements XXHash {
+  constructor(seed: Buffer); // Buffer must be 4-byte long.
+  update(data: Buffer): void;
+  digest(): Buffer;
+  reset(): void;
+  static hash(data: Buffer): Buffer; // One-shot with default seed (zero).
+}
 ```
+
 ### XXHash64
 ```
-(constructor) XXHash64([Number or 4-byte Buffer or 8-byte Buffer])
-(constructor) XXHash64() - using default seed value of 0
-XXHash64.update([Buffer]) - updates internal state for stream hashing
-XXHash64.digest() - produces hash of a stream
-XXHash64.reset() - resets internal state. You can use this rather than creating another hasher instance
+export class XXHash64 implements XXHash {
+  constructor(seed: Buffer); // Buffer must be 4- or 8-byte long.
+  update(data: Buffer): void;
+  digest(): Buffer;
+  reset(): void;
+  static hash(data: Buffer): Buffer; // One-shot with default seed (zero).
+}
 ```
+
 ### XXHash3
 ```
-(constructor) XXHash3([Number or 4-byte Buffer or 8-byte Buffer]) - using seed
-(constructor) XXHash3() - using default seed value of 0
-(constructor) XXHash3([longer-than-135-byte Buffer]) - using secret
-XXHash3.update([Buffer]) - updates internal state for stream hashing
-XXHash3.digest() - produces hash of a stream
-XXHash3.reset() - resets internal state. You can use this rather than creating another hasher instance
+export class XXHash3 implements XXHash {
+  constructor(seed_or_secret: Buffer); // For using seed: Buffer must be 4- or 8-byte long; for using secret: must be at least 136-byte long.
+  update(data: Buffer): void;
+  digest(): Buffer;
+  reset(): void;
+  static hash(data: Buffer): Buffer; // One-shot with default seed (zero).
+}
 ```
+
 ### XXHash128
 ```
-(constructor) XXHash128([Number or 4-byte Buffer or 8-byte Buffer]) - using seed
-(constructor) XXHash128() - using default seed value of 0
-(constructor) XXHash128([longer-than-135-byte Buffer]) - using secret
-XXHash128.update([Buffer]) - updates internal state for stream hashing
-XXHash128.digest() - produces hash of a stream
-XXHash128.reset() - resets internal state. You can use this rather than creating another hasher instance
+export class XXHash128 implements XXHash {
+  constructor(seed_or_secret: Buffer); // For using seed: Buffer must be 4- or 8-byte long; for using secret: must be at least 136-byte long.
+  update(data: Buffer): void;
+  digest(): Buffer;
+  reset(): void;
+  static hash(data: Buffer): Buffer; // One-shot with default seed (zero).
+}
 ```
+
+
 
 Licence
 ===========

@@ -59,15 +59,12 @@
             },
             "msvs_settings": {
               "VCCLCompilerTool": {
-                # "BasicRuntimeChecks": 3, # /RTC1
+                "BasicRuntimeChecks": 3, # /RTC1
                 "MinimalRebuild": "false",
                 "OmitFramePointers": "false",
                 "Optimization": 0, # /Od, no optimization
                 "WarningLevel": 4, # /W4, max level of warning
-                "CompileAs": 1 # /TC, compile as C
-              },
-              "VCLinkerTool": {
-                "LinkIncremental": 2 # enable incremental linking
+                # "CompileAs": 1 # /TC, compile as C
               }
             }
           },

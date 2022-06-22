@@ -9,7 +9,7 @@ export class XXHash32 implements XXHash {
   update(data: Buffer): void;
   digest(): Buffer;
   reset(): void;
-  static hash(data: Buffer, seed: Buffer): Buffer;
+  static hash(data: Buffer): Buffer;
 }
 
 export class XXHash64 implements XXHash {
@@ -17,7 +17,7 @@ export class XXHash64 implements XXHash {
   update(data: Buffer): void;
   digest(): Buffer;
   reset(): void;
-  static hash(data: Buffer, seed: Buffer): Buffer;
+  static hash(data: Buffer): Buffer;
 }
 
 export class XXHash3 implements XXHash {
@@ -25,7 +25,7 @@ export class XXHash3 implements XXHash {
   update(data: Buffer): void;
   digest(): Buffer;
   reset(): void;
-  static hash(data: Buffer, seed_or_secret: Buffer): Buffer;
+  static hash(data: Buffer): Buffer;
 }
 
 export class XXHash128 implements XXHash {
@@ -33,6 +33,5 @@ export class XXHash128 implements XXHash {
   update(data: Buffer): void;
   digest(): Buffer;
   reset(): void;
-  static hash(data: Buffer, seed_or_secret: Buffer): Buffer;
+  static hash(data: Buffer): Buffer;
 }
-
