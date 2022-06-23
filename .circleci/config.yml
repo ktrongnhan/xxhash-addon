@@ -12,6 +12,11 @@ commands:
       jest_extra_params:
         default: ""
         type: string
+      # Evil hack to deal with now out-dated version of Node.
+      hack:
+        default: ""
+        type: string
+
     steps:
       - checkout
       - run: git submodule update --init
@@ -37,7 +42,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: LD_PRELOAD=$(<<parameters.compiler_c>> -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
+      - run: LD_PRELOAD=$(<<parameters.compiler_c>> -print-file-name=libasan.so) <<parameters.hack>> LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
       # To speed up CI a bit, don't run asan builds with benchmark.js.
       # - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
@@ -83,6 +88,8 @@ jobs:
 
     steps:      
       - parameterized_steps:
+          # ASAN build seems to hang with this build config, so force exit.
+          # Maybe check if calling the GC manually can resolve this.
           jest_extra_params: "--forceExit"
 
   node8-clang:
@@ -97,6 +104,26 @@ jobs:
           compiler_c: "clang"
           compiler_cpp: "clang"
           jest_extra_params: "--forceExit"
+          # EVIL!!! Not sure why but ASAN built with clang always CHECKs on CircleCI for this image of node 8.6.
+          # Stack trace looks like this:
+          # ==1127==AddressSanitizer CHECK failed: ../../../../src/libsanitizer/asan/asan_globals.cc:114 "((AddrIsAlignedByGranularity(g->size_with_redzone))) != (0)" (0x0, 0x0)
+          # 0 0x7f8acd479ba3 (/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/libasan.so+0x59ba3)
+          # 1 0x7f8acd47dae3 in __sanitizer::CheckFailed(char const*, int, char const*, unsigned long long, unsigned long long) (/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/libasan.so+0x5dae3)
+          # 2 0x7f8acd443273 in __asan_unregister_globals (/usr/bin/../lib/gcc/x86_64-linux-gnu/4.9/libasan.so+0x23273)
+          # 3 0x7f8abcaa89d9 in asan.module_dtor (/home/circleci/xxhash-addon/build/Debug/addon.node+0x749d9)
+          # 4 0x7f8ace30a9a9 (/lib64/ld-linux-x86-64.so.2+0x139a9)
+          # 5 0x7f8ace3096bd (/lib64/ld-linux-x86-64.so.2+0x126bd)
+          # 6 0x7f8acd21d02a (/lib/x86_64-linux-gnu/libdl.so.2+0x102a)
+          # 7 0x7f8ace305aa3 (/lib64/ld-linux-x86-64.so.2+0xeaa3)
+          # 8 0x7f8acd21d5dc (/lib/x86_64-linux-gnu/libdl.so.2+0x15dc)
+          # 9 0x7f8acd21d0c0 in dlopen (/lib/x86_64-linux-gnu/libdl.so.2+0x10c0)
+          # 10 0x1595c76 in uv_dlopen ../deps/uv/src/unix/dl.c:36
+          # 11 0x135bfb4 in node::DLOpen(v8::FunctionCallbackInfo<v8::Value> const&) (/usr/local/bin/node+0x135bfb4)
+          # 12 0xb9adf2 in v8::internal::FunctionCallbackArguments::Call(void (*)(v8::FunctionCallbackInfo<v8::Value> const&)) (/usr/local/bin/node+0xb9adf2)
+          # 13 0xc13f59 in v8::internal::MaybeHandle<v8::internal::Object> v8::internal::(anonymous namespace)::HandleApiCallHelper<false>(v8::internal::Isolate*, v8::internal::Handle<v8::internal::HeapObject>, v8::internal::Handle<v8::internal::HeapObject>, v8::internal::Handle<v8::internal::FunctionTemplateInfo>, v8::internal::Handle<v8::internal::Object>, v8::internal::BuiltinArguments) (/usr/local/bin/node+0xc13f59)
+          # 14 0xc14d08 in v8::internal::Builtin_HandleApiCall(int, v8::internal::Object**, v8::internal::Isolate*) (/usr/local/bin/node+0xc14d08)
+          # 15 0x194996c046fc (+0x6fc)
+          hack: "ASAN_OPTIONS=report_globals=0"
 
 workflows:
   version: 2
