@@ -24,8 +24,8 @@ test_script:
   - node --version
   - npm --version
   - npm install jest --save-dev
-  - npm test
-  - npm run benchmark
+  - npm run debug:test:windows
+  - npm run debug:benchmark:windows
   - npm run ci:build
   - npm test
   - npm run benchmark

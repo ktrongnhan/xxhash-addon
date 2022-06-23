@@ -10,7 +10,9 @@
     "benchmark": "node benchmark.js",
     "ci:build": "node-gyp rebuild --verbose --ensure --jobs max",
     "debug:build": "DEBUG=1 node-gyp rebuild --debug --verbose --ensure --jobs max",
-    "debug:build:windows": "set DEBUG=1 && node-gyp rebuild --debug --verbose --ensure --jobs max && set DEBUG="
+    "debug:build:windows": "set DEBUG=1 && node-gyp rebuild --debug --verbose --ensure --jobs max && set DEBUG=",
+    "debug:test:windows": "set DEBUG=1 && node node_modules/jest/bin/jest.js && set DEBUG=",
+    "debug:benchmark:windows": "set DEBUG=1 && node benchmark.js && set DEBUG="
   },
   "files": [
     "/xxHash/xxhash.h",

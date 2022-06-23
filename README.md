@@ -113,17 +113,24 @@ Note: `debug:build` compiles and links with Address Sanitizer (`-fsanitze=addres
 
 You may have troubles running tests with asan build. Here is my snippet to get it running under `lldb` on macOS.
 
-Key takeaways:
-* If you see an error saying Asan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
-* Asan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
-
 ```bash
 $ lldb node node_modules/jest/bin/jest.js
 (lldb) env DYLD_INSERT_LIBRARIES=/Library/Developer/CommandLineTools/usr/lib/clang/13.1.6/lib/darwin/libclang_rt.asan_osx_dynamic.dylib
+(lldb) env ASAN_OPTIONS=detect_leaks=1
 (lldb) breakpoint set -f src/addon.c -l 100
 (lldb) run
 (lldb) next
 ```
+
+OR
+
+```bash
+DYLD_INSERT_LIBRARIES=$(clang --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 node node_modules/jest/bin/jest.js
+```
+
+Key takeaways:
+* If you see an error saying Asan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
+* Asan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
 
 If you are debugging on Linux with GCC as your default compiler, here is a helpful oneliner:
 
