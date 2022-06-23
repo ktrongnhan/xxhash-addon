@@ -3,7 +3,10 @@ version: 2.1
 commands:
   parameterized_steps:
     parameters:
-      compiler:
+      compiler_c:
+        default: "gcc"
+        type: string
+      compiler_cpp:
         default: "g++"
         type: string
       jest_extra_params:
@@ -12,11 +15,12 @@ commands:
     steps:
       - checkout
       - run: git submodule update --init
-      - run: sudo apt-get update && sudo apt-get -y install python <<parameters.compiler>> make
+      - run: sudo apt-get update && sudo apt-get -y install python <<parameters.compiler_c>> <<parameters.compiler_cpp>> make
       - run: |
           node --version
           npm --version
-          <<parameters.compiler>> --version
+          <<parameters.compiler_c>> --version
+          <<parameters.compiler_cpp>> --version
 
       # Download and cache dependencies
       - restore_cache:
@@ -25,7 +29,7 @@ commands:
             # fallback to using the latest cache if no exact match is found
             - v1-dependencies-
 
-      - run: CC=$(which <<parameters.compiler>>) CXX=$(which <<parameters.compiler>>) npm run debug:build
+      - run: CC=$(which <<parameters.compiler_c>>) npm run debug:build
       - run: npm install jest --save-dev
 
       - save_cache:
@@ -33,7 +37,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: LD_PRELOAD=$(<<parameters.compiler>> -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
+      - run: LD_PRELOAD=$(<<parameters.compiler_c>> -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
       # To speed up CI a bit, don't run asan builds with benchmark.js.
       # - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
@@ -57,8 +61,7 @@ jobs:
     working_directory: ~/xxhash-addon
 
     steps:      
-      - parameterized_steps:
-          compiler: "g++"
+      - parameterized_steps
 
   nodelatest-clang:
     docker:
@@ -68,7 +71,8 @@ jobs:
 
     steps:      
       - parameterized_steps:
-          compiler: "clang"
+          compiler_c: "clang"
+          compiler_cpp: "clang"
 
   node8-gcc:
     docker:
@@ -79,7 +83,6 @@ jobs:
 
     steps:      
       - parameterized_steps:
-          compiler: "clang"
           jest_extra_params: "--forceExit"
 
   node8-clang:
@@ -91,7 +94,8 @@ jobs:
 
     steps:      
       - parameterized_steps:
-          compiler: "g++"
+          compiler_c: "clang"
+          compiler_cpp: "clang"
           jest_extra_params: "--forceExit"
 
 workflows:

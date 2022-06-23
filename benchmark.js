@@ -11,16 +11,16 @@ randomFillSync(buf);
 const buf_seed = Buffer.alloc(8);
 randomFillSync(buf_seed);
 
-const md5 = createHash('md5');
-const sha1 = createHash('sha1');
-const blake = createHash('blake2s256');
+const md5 = process.env.DEBUG ? null : createHash('md5');
+const sha1 = process.env.DEBUG ? null : createHash('sha1');
+const blake = process.env.DEBUG ? null : createHash('blake2s256');
 
 const xxh64 = new XXHash64(buf_seed);
 const xxh3 = new XXHash3(buf_seed);
 const xxh128 = new XXHash128(buf_seed);
 
-const hashes = [md5, sha1, xxh64, xxh3, xxh128];
-const names = ['MD5', 'SHA1', 'XXH64', 'XXH3', 'XXH3 128 bits'];
+const hashes = process.env.DEBUG ? [xxh64, xxh3, xxh128] : [md5, sha1, xxh64, xxh3, xxh128];
+const names = process.env.DEBUG ? ['XXH64', 'XXH3', 'XXH3 128 bits'] : ['MD5', 'SHA1', 'XXH64', 'XXH3', 'XXH3 128 bits'];
 
 const obs = new PerformanceObserver(items => {
    console.log(items.getEntriesByType('measure'));
