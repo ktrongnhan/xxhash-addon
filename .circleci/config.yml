@@ -12,6 +12,10 @@ commands:
       jest_extra_params:
         default: ""
         type: string
+      # Needs to set LD_PRELOAD for GCC.
+      ld_preload:
+        default: ""
+        type: string
       # Evil hack to deal with now out-dated version of Node.
       hack:
         default: ""
@@ -42,7 +46,7 @@ commands:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
 
-      - run: LD_PRELOAD=$(<<parameters.compiler_c>> -print-file-name=libasan.so) <<parameters.hack>> LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
+      - run: <<parameters.ld_preload>> <<parameters.hack>> LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js <<parameters.jest_extra_params>>
       # To speed up CI a bit, don't run asan builds with benchmark.js.
       # - run: LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
@@ -66,7 +70,8 @@ jobs:
     working_directory: ~/xxhash-addon
 
     steps:      
-      - parameterized_steps
+      - parameterized_steps:
+          ld_preload: "LD_PRELOAD=$(gcc -print-file-name=libasan.so)"
 
   nodelatest-clang:
     docker:
@@ -88,6 +93,7 @@ jobs:
 
     steps:      
       - parameterized_steps:
+          ld_preload: "LD_PRELOAD=$(gcc -print-file-name=libasan.so)"
           # ASAN build seems to hang with this build config, so force exit.
           # Maybe check if calling the GC manually can resolve this.
           jest_extra_params: "--forceExit"
