@@ -9,7 +9,6 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-2016
           - windows-2019
         node_version:
           - 8
@@ -27,7 +26,51 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node_version }}
-          architecture: ${{ matrix.architecture }}
       - run: npm ci
       - run: npm test
       - run: npm run benchmark
+
+  asan:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+        node_version:
+          - 12
+          - 14
+          - 16
+          - latest
+        cc:
+          - gcc
+          - clang
+    env:
+      CC: ${{ matrix.cc }}
+      DEBUG: 1
+    name: DEBUG Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: true
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node_version }}
+
+      - run: npm run debug:build
+
+      - name: ASan npm test Ubuntu
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+      - name: Asan npm run benchmark Ubuntu
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+
+      - name: ASan npm test macOS
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: DYLD_INSERT_LIBRARIES=$($CC --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+      - name: Asan npm run benchmark macOS
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        run: DYLD_INSERT_LIBRARIES=$($CC --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
