@@ -78,7 +78,8 @@ jobs:
 
       - name: ASan npm test macOS
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+        run: npm test
+        # run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
       # - name: Asan npm run benchmark macOS
       #   if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
       #   run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
