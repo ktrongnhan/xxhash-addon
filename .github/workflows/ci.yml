@@ -49,7 +49,7 @@ jobs:
     env:
       CC: ${{ matrix.cc }}
       DEBUG: 1
-    name: DEBUG Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    name: ASAN Node ${{ matrix.node_version }} on ${{ matrix.os }} - ${{ matrix.cc }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -59,6 +59,13 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
 
+      - name: General info
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
+        run: |
+          $CC --version
+          $CC --print-file-name=libclang_rt.asan_osx_dynamic.dylib
+
+      - run: npm install jest --save-dev
       - run: npm run debug:build
 
       - name: ASan npm test Ubuntu
@@ -69,8 +76,8 @@ jobs:
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: ASan npm test macOS
-        if: ${{ startsWith(matrix.os, 'macos') }}
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
         run: DYLD_INSERT_LIBRARIES=$($CC --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
       - name: Asan npm run benchmark macOS
-        if: ${{ startsWith(matrix.os, 'macos') }}
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
         run: DYLD_INSERT_LIBRARIES=$($CC --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
