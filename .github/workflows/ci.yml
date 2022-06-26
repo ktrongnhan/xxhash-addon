@@ -77,8 +77,8 @@ jobs:
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: ASan npm test macOS
-        if: ${{ startsWith(matrix.os, 'macos') }}
-        run: npm test
+        if: ${{ startsWith(matrix.os, 'macos') && ${{ matrix.cc == 'clang' }} }}
+        run: DYLD_INSERT_LIBRARIES=$(xcrun clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node node_modules/jest/bin/jest.js
         # run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
       # - name: Asan npm run benchmark macOS
       #   if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
