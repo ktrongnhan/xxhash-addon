@@ -65,6 +65,9 @@ jobs:
 
     working_directory: ~/xxhash-addon
 
+    steps:
+      - parameterized_steps
+
   nodelatest-clang:
     docker:
       - image: cimg/node:current
