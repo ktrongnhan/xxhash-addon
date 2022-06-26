@@ -157,11 +157,11 @@ workflows:
               only:
                 - master
                 - v2
-      - node8-clang:
-          requires:
-            - node8-gcc
-          filters:
-            branches:
-              only:
-                - master
-                - v2
+      # - node8-clang:
+      #     requires:
+      #       - node8-gcc
+      #     filters:
+      #       branches:
+      #         only:
+      #           - master
+      #           - v2
