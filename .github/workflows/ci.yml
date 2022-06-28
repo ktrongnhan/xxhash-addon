@@ -10,6 +10,8 @@ jobs:
           - ubuntu-latest
           - macos-latest
           - windows-2016
+          - windows-2019
+          - windows-latest
         node_version:
           - 8
           - 10
@@ -17,6 +19,11 @@ jobs:
           - 14
           - 16
           - latest
+        exclude:
+          - os: windows-latest # Windows Ent 2022 fails to build old Node versions, so exclude all, then selectively include latest Node.
+        include:
+          - os: windows-latest
+            node_version: latest
     name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v3
@@ -29,6 +36,13 @@ jobs:
       - run: npm ci
       - run: npm test
       - run: npm run benchmark
+      - name: Package and Install
+        run: |
+          npm pack
+          mkdir ~/package_install
+          cp xxhash-addon*.tgz ~/package_install
+          cd ~/package_install
+          npm install xxhash-addon*.tgz
 
   asan:
     runs-on: ${{ matrix.os }}
@@ -50,6 +64,8 @@ jobs:
         exclude:
           - os: macos-latest
             cc: gcc
+          - os: ubuntu-latest
+            node_version: 10 # This build generates lost of leaks. Likely because of GC not kicking off.
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cc }} # Set this for clang build on Ubuntu to be correctly linked.
