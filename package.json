@@ -1,6 +1,6 @@
 {
   "name": "xxhash-addon",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
   "typings": "index.d.ts",

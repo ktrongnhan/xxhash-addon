@@ -7,8 +7,8 @@ __IMPORTANT__: `xxhash-addon` v2 is around the corner. This is almost a re-work 
 
 |Platform |Build Status |
 |------------|---------|
-|Windows | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
-|Debian | [![CircleCI](https://circleci.com/gh/ktrongnhan/xxhash-addon.svg?style=svg)](https://circleci.com/gh/ktrongnhan/xxhash-addon) |
+|AppVeyor (Windows - Release build) | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
+|Actions (Ubuntu, macOS, Windows - Release and ASan builds) | [![.github/workflows/ci.yml](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml/badge.svg)](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml) |
 
 Overview
 ===========
@@ -59,6 +59,7 @@ Features
 * Supporting XXH3 secret.
 * Consistently producing canonical (big-endian) form of hash values as per [xxhash's recommendation](https://github.com/Cyan4973/xxHash/blob/e2f4695899e831171ecd2e780078474712ea61d3/xxhash.h#L243).
 * The addon is extensively sanity-checked againts xxhash's sanity test suite to ensure that generated hashes are correct and align with xxhsum's (`xxhsum` is the official utility of xxhash). Check the file `xxhash-addon.test.js` to see how `xxhash-addon` is being tested.
+* Being seriously checked against memory safety and UB issues with ASan and UBSan. See [the CI](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml) for how this is done.
 * Benchmarks are publicly available.
 * Minimal dependency: the package does not depend on any other npm packages.
 * TypeScript support.
@@ -129,8 +130,8 @@ DYLD_INSERT_LIBRARIES=$(clang --print-file-name=libclang_rt.asan_osx_dynamic.dyl
 ```
 
 Key takeaways:
-* If you see an error saying Asan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
-* Asan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
+* If you see an error saying ASan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
+* ASan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
 
 If you are debugging on Linux with GCC as your default compiler, here is a helpful oneliner:
 
@@ -151,7 +152,7 @@ git push origin your_name/upgrade_deps
 ```
 
 
-Example of Usage
+Examples
 =========
 
 ```javascript
@@ -174,7 +175,7 @@ hasher32.reset();
 
 // Using secret for XXH3
 // Same constructor call syntax, but hasher switches to secret mode whenever
-// it gets a buffer larger than 135 bytes.
+// it gets a buffer of at least 136 bytes.
 const hasher3 = new XXHash3(require('fs').readFileSync('package-lock.json'));
 ```
 
