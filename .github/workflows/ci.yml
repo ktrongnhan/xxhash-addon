@@ -61,7 +61,6 @@ jobs:
           node-version: ${{ matrix.node_version }}
 
       - name: General info
-        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
         run: |
           $CC --version
           $CC -print-file-name=libclang_rt.asan_osx_dynamic.dylib
@@ -70,16 +69,15 @@ jobs:
       - run: npm run debug:build
 
       - name: ASan npm test Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') || matrix.cc == 'gcc' }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
       - name: Asan npm run benchmark Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
-      - name: ASan npm test macOS
+      - name: ASan npm test macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
-        run: DYLD_INSERT_LIBRARIES=$(xcrun clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node node_modules/jest/bin/jest.js
-        # run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
-      # - name: Asan npm run benchmark macOS
-      #   if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
-      #   run: ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node node_modules/jest/bin/jest.js
+      - name: Asan npm run benchmark macOS (clang)
+        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
+        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node benchmark.js
