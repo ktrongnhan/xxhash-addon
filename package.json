@@ -1,13 +1,18 @@
 {
   "name": "xxhash-addon",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
   "typings": "index.d.ts",
   "scripts": {
-    "install": "node-gyp rebuild --ensure",
-    "ci:install": "node-gyp rebuild --verbose --ensure",
-    "test": "jest"
+    "install": "node-gyp rebuild --ensure --jobs max",
+    "test": "jest",
+    "benchmark": "node benchmark.js",
+    "ci:build": "node-gyp rebuild --verbose --ensure --jobs max",
+    "debug:build": "DEBUG=1 node-gyp rebuild --debug --verbose --ensure --jobs max",
+    "debug:build:windows": "set DEBUG=1 && node-gyp rebuild --debug --verbose --ensure --jobs max && set DEBUG=",
+    "debug:test:windows": "set DEBUG=1 && node node_modules/jest/bin/jest.js && set DEBUG=",
+    "debug:benchmark:windows": "set DEBUG=1 && node benchmark.js && set DEBUG="
   },
   "files": [
     "/xxHash/xxhash.h",
@@ -33,7 +38,7 @@
   "engines": {
     "node": ">=8.6.0 <9.0.0 || >=10.0.0"
   },
-  "devDependencies": {
-    "jest": "^28.1.0"
+  "dependencies": {
+    "jest": "^25.5.4"
   }
 }

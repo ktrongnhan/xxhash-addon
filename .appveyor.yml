@@ -1,28 +1,37 @@
 branches:
   only:
     - master
+    - v2
 environment:
   matrix:
-    - nodejs_version: "16"
+    # latest node
+    - nodejs_version: ""
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       GYP_MSVS_VERSION: "2019"
+    # latest node 8 (base-line)
+    - nodejs_version: "8"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      GYP_MSVS_VERSION: "2015"
 
 
 install:
-  - ps: if (!$isLinux) { Update-NodeJsInstallation (Get-NodeJsLatestBuild $env:nodejs_version) x64 }
-  # - sh: sudo apt-get install python g++ make
-  # - sh: nvm install $nodejs_version
+  - ps: Install-Product node $env:nodejs_version x64
   - git submodule update --init
-  - npm run ci:install
+  - npm run debug:build:windows
 
 test_script:
   - echo %APPVEYOR_BUILD_WORKER_IMAGE%
   - node --version
   - npm --version
   - npm install jest --save-dev
+  - npm run debug:test:windows
+  - npm run debug:benchmark:windows
+  - npm run ci:build
   - npm test
+  - npm run benchmark
 
 after_test:
+  - npm run install
   - npm pack
   - cd ..
   - mkdir package_install

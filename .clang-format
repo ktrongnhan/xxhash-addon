@@ -1,0 +1,11 @@
+﻿---
+BasedOnStyle: Google
+AlignEscapedNewlines: Right
+ColumnLimit: '79'
+IndentWidth: '3'
+Language: Cpp
+Standard: Cpp03
+TabWidth: '3'
+UseTab: Never
+
+...
