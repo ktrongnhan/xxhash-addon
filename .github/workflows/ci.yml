@@ -9,7 +9,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-2019
+          - windows-2016
         node_version:
           - 8
           - 10
@@ -39,6 +39,7 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node_version:
+          - 10
           - 12
           - 14
           - 16
@@ -46,6 +47,9 @@ jobs:
         cc:
           - gcc
           - clang
+        exclude:
+          - os: macos-latest
+            cc: gcc
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cc }} # Set this for clang build on Ubuntu to be correctly linked.
@@ -69,15 +73,15 @@ jobs:
       - run: npm run debug:build
 
       - name: ASan npm test Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') || matrix.cc == 'gcc' }}
+        if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
       - name: Asan npm run benchmark Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: ASan npm test macOS (clang)
-        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node node_modules/jest/bin/jest.js
       - name: Asan npm run benchmark macOS (clang)
-        if: ${{ startsWith(matrix.os, 'macos') && matrix.cc == 'clang' }}
+        if: ${{ startsWith(matrix.os, 'macos') }}
         run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node benchmark.js
