@@ -1,3 +1,9 @@
+## v2.0.0
+### Breaking changes
+- API change https://github.com/ktrongnhan/xxhash-addon#api-reference
+- One-shot hash functions are now static.
+- Much better performance.
+
 ## v1.5.0
 ### Dependencies
 - Upgrading `xxhash` to `v0.8.1`

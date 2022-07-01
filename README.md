@@ -1,6 +1,6 @@
 Yet another `xxhash` addon for Node.js which can be ***x50 times faster*** than `crypto` MD5
 
-__IMPORTANT__: `xxhash-addon` v2 is around the corner. This is almost a re-work of this project with heavy focus on performance and consistency.
+__IMPORTANT__: `xxhash-addon` v2 is finally here. This is almost a re-work of this project with heavy focus on performance and consistency. [FAQ](https://github.com/ktrongnhan/xxhash-addon#FAQ) has some very good info that you may not want to miss.
 
 ![npm](https://img.shields.io/npm/v/xxhash-addon?style=plastic)
 ![NPM](https://img.shields.io/npm/l/xxhash-addon?style=plastic)
@@ -62,7 +62,7 @@ Features
 * Being seriously checked against memory safety and UB issues with ASan and UBSan. See [the CI](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml) for how this is done.
 * Benchmarks are publicly available.
 * Minimal dependency: the package does not depend on any other npm packages.
-* TypeScript support.
+* TypeScript support. `xxhash-addon` **is strongly recommended** to be used with TypeScript. Definitely check [FAQ](https://github.com/ktrongnhan/xxhash-addon#FAQ) before using the addon.
 
 Installation
 =========
@@ -72,25 +72,68 @@ npm install xxhash-addon
 
 Note: This native addon requires recompiling. If you do not have Node.js building toolchain then you must install them first:
 
-* On a Windows machine
+On a Windows machine
 
 ```bash
 npm install --global --production windows-build-tools
 ```
 
-* On a Debian/Ubuntu machine
+On a Debian/Ubuntu machine
 
 ```bash
 sudo apt-get update && sudo apt-get install python g++ make
 ```
 
-* On a RHEL/CentOS machine
+On a RHEL/CentOS machine
 
 If you are on RHEL 6 or 7, you would need to install GCC/G++ >= 6.3 via `devtoolset-` for the module to compile. See [SCL](https://www.softwarecollections.org/en/scls/rhscl/devtoolset-6/).
 
-* On a Mac
+On a Mac
 
 Install `Xcode command line tools`
+
+
+Example
+=========
+
+```javascript
+const { XXHash32, XXHash3 } = require('xxhash-addon');
+
+// Hash a string using the static one-shot method.
+const salute = 'hello there';
+const buf_salute = Buffer.from(salute);
+console.log(XXHash32.hash(buf_salute).toString('hex'));
+
+// Digest a byte-stream (hash a buffer piece by piece).
+const hasher32 = new XXHash32(Buffer.from([0, 0, 0, 0]));
+hasher32.update(buf_salute.slice(0, 3));
+console.log(hasher32.digest().toString('hex'));
+hasher32.update(buf_salute.slice(3));
+console.log(hasher32.digest().toString('hex'));
+
+// Reset the hasher for another hashing.
+hasher32.reset();
+
+// Using secret for XXH3
+// Same constructor call syntax, but hasher switches to secret mode whenever
+// it gets a buffer of at least 136 bytes.
+const hasher3 = new XXHash3(require('fs').readFileSync('package-lock.json'));
+```
+
+
+FAQ
+=========
+
+1. Why TypeScript?
+* Short answer: for much better performance and security.
+* Long answer:
+Dynamic type check is so expensive that it can hurt performance. In the world with no TypeScript, the streaming `update()` method had to check whether the buffer passed to it was an actual Node's `Buffer`. Failing to detect Buffer type might cause `v8` to `CHECK` and crashed Node process. Such dynamic type check could degrade performance of `xxhash-addon` by 10-15% per my onw benchmark on a low-end Intel Mac mini (on Apple Silicon, the difference is neglectable though.)
+
+So how does TypeScript (TS) help? Static type check.
+
+There is still a theoretical catch. TS' type system is structural so in a corner case where you have a class that is structurally like `Buffer` and you pass an instance of that class to `update()`. This is an extreme case that should never happen in practice. Nevertheless, there are official techniques to 'force' nominal typing. Check https://www.typescriptlang.org/play#example/nominal-typing for an in-depth.
+
+If you don't use TS then you probably want to enable run-time type check of `xxhash-addon`. Uncomment the line `# "defines": [ "ENABLE_RUNTIME_TYPE_CHECK" ]` in `binding.gyp` and re-compile the addon. Use this at your own risk.
 
 
 Development
@@ -152,32 +195,7 @@ git push origin your_name/upgrade_deps
 ```
 
 
-Examples
-=========
 
-```javascript
-const { XXHash32, XXHash3 } = require('xxhash-addon');
-
-// Hash a string using the static one-shot method.
-const salute = 'hello there';
-const buf_salute = Buffer.from(salute);
-console.log(XXHash32.hash(buf_salute).toString('hex'));
-
-// Digest a byte-stream (hash a buffer piece by piece).
-const hasher32 = new XXHash32(Buffer.from([0, 0, 0, 0]));
-hasher32.update(buf_salute.slice(0, 3));
-console.log(hasher32.digest().toString('hex'));
-hasher32.update(buf_salute.slice(3));
-console.log(hasher32.digest().toString('hex'));
-
-// Reset the hasher for another hashing.
-hasher32.reset();
-
-// Using secret for XXH3
-// Same constructor call syntax, but hasher switches to secret mode whenever
-// it gets a buffer of at least 136 bytes.
-const hasher3 = new XXHash3(require('fs').readFileSync('package-lock.json'));
-```
 
 API reference
 ===========
