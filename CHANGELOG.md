@@ -1,3 +1,7 @@
+## v2.0.1
+### Fixes
+- Move jest to devDependencies (#30)
+
 ## v2.0.0
 ### Breaking changes
 - API change https://github.com/ktrongnhan/xxhash-addon#api-reference
