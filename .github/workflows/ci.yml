@@ -40,9 +40,9 @@ jobs:
         run: |
           npm pack
           mkdir ~/package_install
-          cp xxhash-addon-2.0.0.tgz ~/package_install
+          cp xxhash-addon-2.0.1.tgz ~/package_install
           cd ~/package_install
-          npm install xxhash-addon-2.0.0.tgz
+          npm install xxhash-addon-2.0.1.tgz
 
   asan:
     runs-on: ${{ matrix.os }}
