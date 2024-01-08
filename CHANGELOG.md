@@ -1,3 +1,7 @@
+## v2.0.3
+### Fixes
+- README to ref the correct version of xxHash
+
 ## v2.0.2
 ### Dependencies
 - Upgrading `xxhash` to `v0.8.2`
