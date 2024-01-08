@@ -1,3 +1,9 @@
+## v2.0.2
+### Dependencies
+- Upgrading `xxhash` to `v0.8.2`
+### Fixes
+- Auto-discover Release and Debug builds (#31)
+
 ## v2.0.1
 ### Fixes
 - Move jest to devDependencies (#30)
