@@ -1,4 +1,8 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
@@ -27,6 +31,7 @@ jobs:
       - run: npm test
       - run: npm run benchmark
       - name: Package and Install
+        shell: bash
         run: |
           npm pack
           mkdir ~/package_install
@@ -82,7 +87,7 @@ jobs:
 
       - name: ASan npm test macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node --test xxhash-addon.test.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node --test xxhash-addon.test.js
       - name: Asan npm run benchmark macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node benchmark.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js
