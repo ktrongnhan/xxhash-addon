@@ -1,4 +1,6 @@
-const { XXHash32, XXHash64, XXHash3, XXHash128 } = require('xxhash-addon');
+const { describe, test } = require('node:test');
+const assert = require('node:assert/strict');
+const { XXHash32, XXHash64, XXHash3, XXHash128 } = require('./xxhash-addon');
 
 const sanityBuffer = Buffer.from([
   0x00, 0x52, 0x92, 0x9b, 0xb7, 0x32, 0xa3, 0x24,
@@ -336,8 +338,8 @@ describe('XXHash32', () => {
   //   });
 
   test('static one-shot hash', () => {
-    expect(XXHash32.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('CF65B03E');
-    expect(XXHash32.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('5BD11DBD');
+    assert.strictEqual(XXHash32.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase(), 'CF65B03E');
+    assert.strictEqual(XXHash32.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase(), '5BD11DBD');
   });
 
   //   test('with seed', () => {
@@ -347,14 +349,14 @@ describe('XXHash32', () => {
 
   test('streaming', () => {
     hasher32Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher32Seeded.digest().toString('hex').toUpperCase()).toBe('B4545AA4');
+    assert.strictEqual(hasher32Seeded.digest().toString('hex').toUpperCase(), 'B4545AA4');
     hasher32Seeded.update(sanityBuffer.slice(1, 222));
-    expect(hasher32Seeded.digest().toString('hex').toUpperCase()).toBe('58803C5F');
+    assert.strictEqual(hasher32Seeded.digest().toString('hex').toUpperCase(), '58803C5F');
 
     hasher32Seeded.reset();
     hasher32Seeded.update(sanityBuffer.slice(0, 1));
     hasher32Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
-    expect(hasher32Seeded.digest().toString('hex').toUpperCase()).toBe('B4545AA4');
+    assert.strictEqual(hasher32Seeded.digest().toString('hex').toUpperCase(), 'B4545AA4');
   });
 });
 
@@ -391,8 +393,8 @@ describe('XXHash64', () => {
   //   });
 
   test('static one-shot hash', () => {
-    expect(XXHash64.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('E934A84ADB052768');
-    expect(XXHash64.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase()).toBe('B641AE8CB691C174');
+    assert.strictEqual(XXHash64.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase(), 'E934A84ADB052768');
+    assert.strictEqual(XXHash64.hash(sanityBuffer.slice(0, 222)).toString('hex').toUpperCase(), 'B641AE8CB691C174');
   });
 
   //   test('with seed', () => {
@@ -402,14 +404,14 @@ describe('XXHash64', () => {
 
   test('streaming', () => {
     hasher64Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher64Seeded.digest().toString('hex').toUpperCase()).toBe('5014607643A9B4C3');
+    assert.strictEqual(hasher64Seeded.digest().toString('hex').toUpperCase(), '5014607643A9B4C3');
     hasher64Seeded.update(sanityBuffer.slice(1, 222));
-    expect(hasher64Seeded.digest().toString('hex').toUpperCase()).toBe('20CB8AB7AE10C14A');
+    assert.strictEqual(hasher64Seeded.digest().toString('hex').toUpperCase(), '20CB8AB7AE10C14A');
 
     hasher64Seeded.reset();
     hasher64Seeded.update(sanityBuffer.slice(0, 1));
     hasher64Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
-    expect(hasher64Seeded.digest().toString('hex').toUpperCase()).toBe('5014607643A9B4C3');
+    assert.strictEqual(hasher64Seeded.digest().toString('hex').toUpperCase(), '5014607643A9B4C3');
   });
 });
 
@@ -447,20 +449,20 @@ describe('XXHash3', () => {
   //   });
 
   test('static one-shot hash', () => {
-    expect(XXHash3.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase()).toBe('C44BDFF4074EECDB');
-    expect(XXHash3.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase()).toBe('6E73A90539CF2948');
+    assert.strictEqual(XXHash3.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase(), 'C44BDFF4074EECDB');
+    assert.strictEqual(XXHash3.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase(), '6E73A90539CF2948');
   });
 
   test('streaming with seed', () => {
     hasher3Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher3Seeded.digest().toString('hex').toUpperCase()).toBe('032BE332DD766EF8');
+    assert.strictEqual(hasher3Seeded.digest().toString('hex').toUpperCase(), '032BE332DD766EF8');
     hasher3Seeded.update(sanityBuffer.slice(1, 2240));
-    expect(hasher3Seeded.digest().toString('hex').toUpperCase()).toBe('757BA8487D1B5247');
+    assert.strictEqual(hasher3Seeded.digest().toString('hex').toUpperCase(), '757BA8487D1B5247');
 
     hasher3Seeded.reset();
     hasher3Seeded.update(sanityBuffer.slice(0, 1));
     hasher3Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
-    expect(hasher3Seeded.digest().toString('hex').toUpperCase()).toBe('032BE332DD766EF8');
+    assert.strictEqual(hasher3Seeded.digest().toString('hex').toUpperCase(), '032BE332DD766EF8');
   });
 
   //   test('with secret', () => {
@@ -470,14 +472,14 @@ describe('XXHash3', () => {
 
   test('streaming with secret', () => {
     hasher3Secret.update(sanityBuffer.slice(0, 1));
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
+    assert.strictEqual(hasher3Secret.digest().toString('hex').toUpperCase(), '8A52451418B2DA4D');
     hasher3Secret.update(sanityBuffer.slice(1, 2048));
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('D32E975821D6519F');
+    assert.strictEqual(hasher3Secret.digest().toString('hex').toUpperCase(), 'D32E975821D6519F');
 
     hasher3Secret.reset();
     hasher3Secret.update(sanityBuffer.slice(0, 1));
     hasher3Secret.update(Buffer.alloc(0)); // empty buffer should not update state
-    expect(hasher3Secret.digest().toString('hex').toUpperCase()).toBe('8A52451418B2DA4D');
+    assert.strictEqual(hasher3Secret.digest().toString('hex').toUpperCase(), '8A52451418B2DA4D');
   });
 });
 
@@ -515,10 +517,10 @@ describe('XXHash128', () => {
   // });
 
   test('static one-shot hash', () => {
-    expect(XXHash128.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase())
-      .toBe('A6CD5E9392000F6AC44BDFF4074EECDB');
-    expect(XXHash128.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase())
-      .toBe('CCB134FBFA7CE49D6E73A90539CF2948');
+    assert.strictEqual(XXHash128.hash(sanityBuffer.slice(0, 1)).toString('hex').toUpperCase(),
+      'A6CD5E9392000F6AC44BDFF4074EECDB');
+    assert.strictEqual(XXHash128.hash(sanityBuffer.slice(0, 2240)).toString('hex').toUpperCase(),
+      'CCB134FBFA7CE49D6E73A90539CF2948');
   });
 
   // test('with seed', () => {
@@ -530,13 +532,13 @@ describe('XXHash128', () => {
 
   test('streaming with seed', () => {
     hasher128Seeded.update(sanityBuffer.slice(0, 1));
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89B99554BA22467CB53D5557E7F76F8D');
+    assert.strictEqual(hasher128Seeded.digest().toString('hex').toUpperCase(), '89B99554BA22467CB53D5557E7F76F8D');
     hasher128Seeded.update(sanityBuffer.slice(1, 2240));
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('50A1FE17B338995FED385111126FBA6F');
+    assert.strictEqual(hasher128Seeded.digest().toString('hex').toUpperCase(), '50A1FE17B338995FED385111126FBA6F');
 
     hasher128Seeded.reset();
     hasher128Seeded.update(sanityBuffer.slice(0, 1));
     hasher128Seeded.update(Buffer.alloc(0)); // empty buffer should not update state
-    expect(hasher128Seeded.digest().toString('hex').toUpperCase()).toBe('89B99554BA22467CB53D5557E7F76F8D');
+    assert.strictEqual(hasher128Seeded.digest().toString('hex').toUpperCase(), '89B99554BA22467CB53D5557E7F76F8D');
   });
 });
