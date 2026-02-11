@@ -80,14 +80,14 @@ jobs:
 
       - name: ASan npm test Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node --test xxhash-addon.test.js
+        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
       - name: Asan npm run benchmark Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: ASan npm test macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node --test xxhash-addon.test.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node xxhash-addon.test.js
       - name: Asan npm run benchmark macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
         run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js
