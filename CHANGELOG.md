@@ -2,6 +2,7 @@
 ### Dependencies
 - Remove `jest` dependency; migrate tests to Node.js built-in test runner (`node:test`)
 - Zero devDependencies
+- Upgrade `xxHash` to `v0.8.3`
 ### Breaking changes
 - Minimum supported Node.js version is now 20 (dropping 8, 10, 12, 14, 16, 18)
 ### CI
