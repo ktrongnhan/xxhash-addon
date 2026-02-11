@@ -1,7 +1,7 @@
 node_modules
 
 .vscode
-
+CLAUDE.md
 # node-gyp build directory
 build
 

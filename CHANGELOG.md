@@ -1,3 +1,8 @@
+## v2.0.4
+### Dependencies
+- Remove `jest` dependency; migrate tests to Node.js built-in test runner (`node:test`)
+- Zero devDependencies
+
 ## v2.0.3
 ### Fixes
 - README to ref the correct version of xxHash

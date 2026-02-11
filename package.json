@@ -6,12 +6,12 @@
   "typings": "index.d.ts",
   "scripts": {
     "install": "node-gyp rebuild --ensure --jobs max",
-    "test": "jest",
+    "test": "node --test xxhash-addon.test.js",
     "benchmark": "node benchmark.js",
     "ci:build": "node-gyp rebuild --verbose --ensure --jobs max",
     "debug:build": "DEBUG=1 node-gyp rebuild --debug --verbose --ensure --jobs max",
     "debug:build:windows": "set DEBUG=1 && node-gyp rebuild --debug --verbose --ensure --jobs max && set DEBUG=",
-    "debug:test:windows": "set DEBUG=1 && node node_modules/jest/bin/jest.js && set DEBUG=",
+    "debug:test:windows": "set DEBUG=1 && node --test xxhash-addon.test.js && set DEBUG=",
     "debug:benchmark:windows": "set DEBUG=1 && node benchmark.js && set DEBUG="
   },
   "files": [
@@ -37,8 +37,5 @@
   "homepage": "https://github.com/ktrongnhan/xxhash-addon#readme",
   "engines": {
     "node": ">=8.6.0 <9.0.0 || >=10.0.0"
-  },
-  "devDependencies": {
-    "jest": "^25.5.4"
   }
 }

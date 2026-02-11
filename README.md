@@ -146,7 +146,6 @@ This is for people who are interested in creating a PR.
 ```bash
 git clone https://github.com/ktrongnhan/xxhash-addon
 git submodule update --init
-npm install jest --save-dev
 npm run debug:build
 npm run benchmark
 npm test
@@ -158,7 +157,7 @@ Note: `debug:build` compiles and links with Address Sanitizer (`-fsanitze=addres
 You may have troubles running tests with asan build. Here is my snippet to get it running under `lldb` on macOS.
 
 ```bash
-$ lldb node node_modules/jest/bin/jest.js
+$ lldb node -- --test xxhash-addon.test.js
 (lldb) env DYLD_INSERT_LIBRARIES=/Library/Developer/CommandLineTools/usr/lib/clang/13.1.6/lib/darwin/libclang_rt.asan_osx_dynamic.dylib
 (lldb) env ASAN_OPTIONS=detect_leaks=1
 (lldb) breakpoint set -f src/addon.c -l 100
@@ -169,17 +168,17 @@ $ lldb node node_modules/jest/bin/jest.js
 OR
 
 ```bash
-DYLD_INSERT_LIBRARIES=$(clang --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 node node_modules/jest/bin/jest.js
+DYLD_INSERT_LIBRARIES=$(clang --print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 node --test xxhash-addon.test.js
 ```
 
 Key takeaways:
-* If you see an error saying ASan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary and jest.js as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
+* If you see an error saying ASan Interceptor is loaded too late, set the env `DYLD_INSERT_LIBRARIES`. You need to use absolute path to your Node.js binary as well. Curious why? [An interesting article](https://jonasdevlieghere.com/sanitizing-python-modules).
 * ASan doesn't detect mem-leak on macOS by default. You may want to turn this on with the env `ASAN_OPTIONS=detect_leaks=1`.
 
 If you are debugging on Linux with GCC as your default compiler, here is a helpful oneliner:
 
 ```bash
-$ LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node node_modules/jest/bin/jest.js
+$ LD_PRELOAD=$(gcc -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan DEBUG=1 node --test xxhash-addon.test.js
 ```
 
 **How to upgrade xxHash?**
