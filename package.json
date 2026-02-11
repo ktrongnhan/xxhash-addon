@@ -1,6 +1,6 @@
 {
   "name": "xxhash-addon",
-  "version": "2.0.3",
+  "version": "3.0.0",
   "description": "Yet another xxhash addon for Node.js",
   "main": "xxhash-addon.js",
   "typings": "index.d.ts",
@@ -36,6 +36,6 @@
   },
   "homepage": "https://github.com/ktrongnhan/xxhash-addon#readme",
   "engines": {
-    "node": ">=8.6.0 <9.0.0 || >=10.0.0"
+    "node": "^20.0.0 || ^22.0.0 || >=24.0.0"
   }
 }

@@ -1,7 +1,16 @@
-## v2.0.4
+## v3.0.0
 ### Dependencies
 - Remove `jest` dependency; migrate tests to Node.js built-in test runner (`node:test`)
 - Zero devDependencies
+### Breaking changes
+- Minimum supported Node.js version is now 20 (dropping 8, 10, 12, 14, 16, 18)
+### CI
+- Update GitHub Actions to test Node.js 20, 22, 24
+- Update AppVeyor to test Node.js 20, 22, 24
+- Bump `actions/checkout` and `actions/setup-node` to v4
+- Remove deprecated `windows-2016` runner
+- Remove stale jest references from ASan CI jobs
+- Drop AppVeyor; GitHub Actions covers Windows builds
 
 ## v2.0.3
 ### Fixes

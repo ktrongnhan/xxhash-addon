@@ -5,14 +5,11 @@ __IMPORTANT__: `xxhash-addon` v2 is finally here. This is almost a re-work of th
 ![npm](https://img.shields.io/npm/v/xxhash-addon?style=plastic)
 ![NPM](https://img.shields.io/npm/l/xxhash-addon?style=plastic)
 
-|Platform |Build Status |
-|------------|---------|
-|AppVeyor (Windows - Release build) | [![Build status](https://ci.appveyor.com/api/projects/status/github/ktrongnhan/xxhash-addon?svg=true)](https://ci.appveyor.com/project/ktrongnhan/xxhash-addon) |
-|Actions (Ubuntu, macOS, Windows - Release and ASan builds) | [![.github/workflows/ci.yml](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml/badge.svg)](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml) |
+[![CI](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml/badge.svg)](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml)
 
 Overview
 ===========
-`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) `v0.8.2`, which has support for a new algorithm `XXH3` that has been showed to outperform its predecessor.
+`xxhash-addon` is a native addon for Node.js (^20 || ^22 || >=24) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) `v0.8.2`, which has support for a new algorithm `XXH3` that has been showed to outperform its predecessor.
 
 __IMPORTANT__: As of `v0.8.0`, XXH3 and XXH128 are now considered stable. Rush to the upstream [CHANGELOG](https://github.com/Cyan4973/xxHash/blob/v0.8.0/CHANGELOG) for the formal announcement! `xxhash-addon v1.4.0` is the first iteration packed with stable XXH3 and XXH128.
 
