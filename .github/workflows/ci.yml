@@ -1,4 +1,8 @@
-on: [push, pull_request]
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
 
 jobs:
   build:
@@ -9,40 +13,31 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
-          - windows-2016
-          - windows-2019
           - windows-latest
         node_version:
-          - 8
-          - 10
-          - 12
-          - 14
-          - 16
-          - latest
-        exclude:
-          - os: windows-latest # Windows Ent 2022 fails to build old Node versions, so exclude all, then selectively include latest Node.
-        include:
-          - os: windows-latest
-            node_version: latest
+          - 20
+          - 22
+          - 24
     name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
-      - run: npm ci
+      - run: npm install
       - run: npm test
       - run: npm run benchmark
       - name: Package and Install
+        shell: bash
         run: |
           npm pack
           mkdir ~/package_install
-          cp xxhash-addon-2.0.1.tgz ~/package_install
+          cp xxhash-addon-*.tgz ~/package_install
           cd ~/package_install
-          npm install xxhash-addon-2.0.1.tgz
+          npm install xxhash-addon-*.tgz
 
   asan:
     runs-on: ${{ matrix.os }}
@@ -53,30 +48,26 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node_version:
-          - 10
-          - 12
-          - 14
-          - 16
-          - latest
+          - 20
+          - 22
+          - 24
         cc:
           - gcc
           - clang
         exclude:
           - os: macos-latest
             cc: gcc
-          - os: ubuntu-latest
-            node_version: 10 # This build generates lost of leaks. Likely because of GC not kicking off.
     env:
       CC: ${{ matrix.cc }}
       CXX: ${{ matrix.cc }} # Set this for clang build on Ubuntu to be correctly linked.
       DEBUG: 1
     name: ASAN Node ${{ matrix.node_version }} on ${{ matrix.os }} - ${{ matrix.cc }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: true
       - name: Setup node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node_version }}
 
@@ -85,19 +76,18 @@ jobs:
           $CC --version
           $CC -print-file-name=libclang_rt.asan_osx_dynamic.dylib
 
-      - run: npm install jest --save-dev
       - run: npm run debug:build
 
       - name: ASan npm test Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node node_modules/jest/bin/jest.js
+        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
       - name: Asan npm run benchmark Ubuntu
         if: ${{ startsWith(matrix.os, 'ubuntu') }}
         run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: ASan npm test macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node node_modules/jest/bin/jest.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node xxhash-addon.test.js
       - name: Asan npm run benchmark macOS (clang)
         if: ${{ startsWith(matrix.os, 'macos') }}
-        run: DYLD_INSERT_LIBRARIES=$(otool -l build/Debug/addon.node | grep 'lib/darwin' | awk '{print $2}')/libclang_rt.asan_osx_dynamic.dylib node benchmark.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js
