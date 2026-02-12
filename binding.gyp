@@ -73,6 +73,9 @@
               "-O3",
               "-std=c99",
             ],
+            "defines": [
+              "XXH3_STREAM_USE_STACK=1",
+            ],
             "msvs_settings": {
               "VCCLCompilerTool": {
                 "Optimization": 2, # /O2, max speed
@@ -92,3 +95,4 @@
     }
   ]
 }
+
