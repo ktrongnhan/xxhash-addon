@@ -5,5 +5,8 @@ CLAUDE.md
 # node-gyp build directory
 build
 
+# Benchmark output
+benchmark-results.json
+
 # MacOS
 .DS_Store

@@ -5,6 +5,8 @@
 - Upgrade `xxHash` to `v0.8.3`
 ### Breaking changes
 - Minimum supported Node.js version is now 20 (dropping 8, 10, 12, 14, 16, 18)
+### Performance
+- Enable `XXH3_STREAM_USE_STACK` for ~2x faster XXH3 and XXH128 streaming throughput on Apple Silicon with clang
 ### CI
 - Update GitHub Actions to test Node.js 20, 22, 24
 - Update AppVeyor to test Node.js 20, 22, 24
@@ -12,6 +14,13 @@
 - Remove deprecated `windows-2016` runner
 - Remove stale jest references from ASan CI jobs
 - Drop AppVeyor; GitHub Actions covers Windows builds
+- Add dedicated benchmark workflow (`benchmark.yml`) with expanded platform matrix:
+  Linux x86_64 and ARM64 (GCC + Clang), macOS ARM64 (Clang), Windows x86_64 and ARM64 (MSVC)
+- Benchmark results published as GitHub Actions Job Summary
+- Auto-update benchmark results table in README on push to `master`
+### Improvements
+- Rewrite `benchmark.js`: warmup iterations, 5 measured runs, median/min/max statistics, GB/s throughput, machine-readable JSON output
+- Add `benchmark-summary.js` to consolidate CI benchmark results into a Markdown table
 
 ## v2.0.3
 ### Fixes
