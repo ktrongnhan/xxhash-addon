@@ -40,7 +40,29 @@ BENCHMARK_OUTPUT=results.json node benchmark.js
 ```
 
 <!-- BENCHMARK_RESULTS_START -->
-*Benchmark results will appear here after the first CI run on `master`.*
+## Benchmark Results
+
+> Streaming throughput in GB/s (higher is better). Each cell shows median of 5 runs over 10 GB.
+
+| Platform | Compiler | Node | XXH64 | XXH3 | XXH128 | MD5 | SHA1 |
+|----------|----------|------|------:|------:|------:|------:|------:|
+| macOS arm64 | Apple Clang 17.0.0 | v22 | 11.07 | 22.53 | 22.22 | 0.45 | 1.75 |
+| macOS arm64 | Apple Clang 17.0.0 | v24 | 8.82 | 22.70 | 23.83 | 0.48 | 1.87 |
+| Linux arm64 | GCC 13.3.0 | v22 | 16.33 | 16.93 | 16.94 | 0.70 | 1.94 |
+| Linux arm64 | GCC 13.3.0 | v24 | 16.55 | 17.60 | 17.58 | 0.70 | 1.94 |
+| Linux arm64 | Clang 18.1.3 | v22 | 15.61 | 17.69 | 17.70 | 0.70 | 1.94 |
+| Linux arm64 | Clang 18.1.3 | v24 | 15.52 | 17.43 | 17.40 | 0.70 | 1.94 |
+| Linux x64 | GCC 13.3.0 | v22 | 11.54 | 18.89 | 18.87 | 0.66 | 1.58 |
+| Linux x64 | GCC 13.3.0 | v24 | 11.47 | 17.51 | 17.68 | 0.66 | 1.58 |
+| Linux x64 | Clang 18.1.3 | v22 | 11.54 | 18.39 | 18.44 | 0.66 | 1.58 |
+| Linux x64 | Clang 18.1.3 | v24 | 10.50 | 19.44 | 19.26 | 0.59 | 1.40 |
+| Windows arm64 | MSVC 17.14.36811.4 | v22 | 16.57 | 8.93 | 8.94 | 0.44 | 0.50 |
+| Windows arm64 | MSVC 17.14.36811.4 | v24 | 16.35 | 8.87 | 8.89 | 0.66 | 0.74 |
+| Windows x64 | MSVC 17.14.36915.13 | v22 | 10.70 | 17.79 | 17.85 | 0.66 | 1.57 |
+| Windows x64 | MSVC 17.14.36915.13 | v24 | 10.72 | 17.77 | 17.80 | 0.66 | 1.57 |
+
+*Generated at 2026-02-12T10:27:28.381Z with xxHash v0.8.3*
+
 <!-- BENCHMARK_RESULTS_END -->
 
 
