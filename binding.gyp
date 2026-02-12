@@ -72,6 +72,7 @@
             "cflags": [
               "-O3",
               "-std=c99",
+              "-march=native",
             ],
             "defines": [
               "XXH3_STREAM_USE_STACK=1",
@@ -87,6 +88,7 @@
               "OTHER_CFLAGS": [
                 "-O3",
                 "-std=c99",
+                "-march=native",
               ]
             }
           }

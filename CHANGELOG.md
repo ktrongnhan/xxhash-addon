@@ -7,6 +7,7 @@
 - Minimum supported Node.js version is now 20 (dropping 8, 10, 12, 14, 16, 18)
 ### Performance
 - Enable `XXH3_STREAM_USE_STACK` for ~2x faster XXH3 and XXH128 streaming throughput on Apple Silicon with clang
+- Add `-march=native` to release builds for optimal SIMD vectorization (enables AVX2 on x86_64 instead of SSE2 baseline)
 ### CI
 - Update GitHub Actions to test Node.js 20, 22, 24
 - Update AppVeyor to test Node.js 20, 22, 24
