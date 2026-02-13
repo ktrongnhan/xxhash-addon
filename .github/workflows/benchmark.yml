@@ -62,6 +62,12 @@ jobs:
           CC: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
           CXX: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
 
+      - name: Measure per-core memory bandwidth
+        if: startsWith(matrix.runner, 'ubuntu')
+        run: |
+          clang -O3 -o membw membw.c
+          taskset -c 0 ./membw
+
       - name: Run diagnostic benchmark (buffer-size sweep)
         shell: bash
         env:
