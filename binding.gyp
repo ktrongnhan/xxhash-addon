@@ -9,7 +9,8 @@
       "src/xxhash128_addon.c",
       "src/xxhash3_addon.c",
       "src/xxhash64_addon.c",
-      "src/xxhash32_addon.c"
+      "src/xxhash32_addon.c",
+      "xxHash/xxhash.c"
     ],
     # "defines": [ "ENABLE_RUNTIME_TYPE_CHECK" ]
   },
@@ -17,6 +18,13 @@
     {
       "target_name": "addon",
       "conditions": [
+        [
+          "target_arch=='x64' or target_arch=='ia32'",
+          {
+            "sources": ["xxHash/xxh_x86dispatch.c"],
+            "defines": ["XXHASH_DISPATCH=1"]
+          }
+        ],
         [
           "(OS!='win' and '<!(echo $DEBUG)'=='1') or (OS=='win' and '<!(echo %DEBUG%)'=='1')",
           {
