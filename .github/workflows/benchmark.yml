@@ -16,13 +16,69 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Temporarily limited to single config for faster diagnostic iteration.
-          # Restore the full matrix after investigation is complete.
+          # Linux x86_64 - GCC
+          - runner: ubuntu-latest
+            os_label: linux-x64
+            cc: gcc
+            node_version: 22
+          - runner: ubuntu-latest
+            os_label: linux-x64
+            cc: gcc
+            node_version: 24
           # Linux x86_64 - Clang
           - runner: ubuntu-latest
             os_label: linux-x64
             cc: clang
             node_version: 22
+          - runner: ubuntu-latest
+            os_label: linux-x64
+            cc: clang
+            node_version: 24
+          # Linux ARM64 - GCC
+          - runner: ubuntu-24.04-arm
+            os_label: linux-arm64
+            cc: gcc
+            node_version: 22
+          - runner: ubuntu-24.04-arm
+            os_label: linux-arm64
+            cc: gcc
+            node_version: 24
+          # Linux ARM64 - Clang
+          - runner: ubuntu-24.04-arm
+            os_label: linux-arm64
+            cc: clang
+            node_version: 22
+          - runner: ubuntu-24.04-arm
+            os_label: linux-arm64
+            cc: clang
+            node_version: 24
+          # macOS ARM64 - Clang
+          - runner: macos-latest
+            os_label: macos-arm64
+            cc: clang
+            node_version: 22
+          - runner: macos-latest
+            os_label: macos-arm64
+            cc: clang
+            node_version: 24
+          # Windows x86_64 - MSVC
+          - runner: windows-latest
+            os_label: win-x64
+            cc: msvc
+            node_version: 22
+          - runner: windows-latest
+            os_label: win-x64
+            cc: msvc
+            node_version: 24
+          # Windows ARM64 - MSVC
+          - runner: windows-11-arm
+            os_label: win-arm64
+            cc: msvc
+            node_version: 22
+          - runner: windows-11-arm
+            os_label: win-arm64
+            cc: msvc
+            node_version: 24
 
     name: Bench ${{ matrix.os_label }} ${{ matrix.cc }} Node ${{ matrix.node_version }}
 
@@ -61,18 +117,6 @@ jobs:
         env:
           CC: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
           CXX: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
-
-      - name: Measure per-core memory bandwidth
-        if: startsWith(matrix.runner, 'ubuntu')
-        run: |
-          clang -O3 -o membw membw.c
-          taskset -c 0 ./membw
-
-      - name: Run diagnostic benchmark (buffer-size sweep)
-        shell: bash
-        env:
-          BENCHMARK_COMPILER: ${{ matrix.cc != 'msvc' && steps.compiler_unix.outputs.version || steps.compiler_win.outputs.version }}
-        run: node benchmark-diag.js
 
       - name: Run benchmark
         shell: bash
