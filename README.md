@@ -1,4 +1,4 @@
-Yet another `xxhash` addon for Node.js which can be ***x69 times faster*** than `crypto` MD5
+Yet another `xxhash` addon for Node.js which can be ***x50 times faster*** than `crypto` MD5
 
 __IMPORTANT__: `xxhash-addon` v2 is finally here. This is almost a re-work of this project with heavy focus on performance and consistency. [FAQ](https://github.com/ktrongnhan/xxhash-addon#FAQ) has some very good info that you may not want to miss.
 
