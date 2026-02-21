@@ -16,6 +16,9 @@
   },
   "files": [
     "/xxHash/xxhash.h",
+    "/xxHash/xxhash.c",
+    "/xxHash/xxh_x86dispatch.c",
+    "/xxHash/xxh_x86dispatch.h",
     "/src",
     "binding.gyp",
     "index.d.ts",

@@ -2,6 +2,7 @@
 #define XXHASH_ADDON_H_
 
 #include <stdlib.h>
+#include <string.h>
 
 /* DON'T REMOVE: I use clang to verify this file is C89-compliant. */
 #if 0
@@ -21,8 +22,10 @@
 #endif
 #endif
 
-#define XXH_INLINE_ALL
 #include "xxhash.h"
+#ifdef XXHASH_DISPATCH
+#include "xxh_x86dispatch.h"
+#endif
 
 #define STRINGIZE(x) #x
 #define QUOTE(x) STRINGIZE(x)
