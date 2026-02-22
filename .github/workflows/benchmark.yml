@@ -16,69 +16,41 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64 - GCC
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: gcc
-            node_version: 22
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: gcc
-            node_version: 24
-          # Linux x86_64 - Clang
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: clang
-            node_version: 22
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: clang
-            node_version: 24
-          # Linux ARM64 - GCC
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: gcc
-            node_version: 22
+          # Linux ARM64 baseline
           - runner: ubuntu-24.04-arm
             os_label: linux-arm64
             cc: gcc
             node_version: 24
-          # Linux ARM64 - Clang
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: clang
-            node_version: 22
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: clang
-            node_version: 24
-          # macOS ARM64 - Clang
-          - runner: macos-latest
-            os_label: macos-arm64
-            cc: clang
-            node_version: 22
-          - runner: macos-latest
-            os_label: macos-arm64
-            cc: clang
-            node_version: 24
-          # Windows x86_64 - MSVC
-          - runner: windows-latest
-            os_label: win-x64
-            cc: msvc
-            node_version: 22
-          - runner: windows-latest
-            os_label: win-x64
-            cc: msvc
-            node_version: 24
-          # Windows ARM64 - MSVC
-          - runner: windows-11-arm
-            os_label: win-arm64
-            cc: msvc
-            node_version: 22
+            experiment_label: ''
+            msvc_extra: ''
+          # Windows ARM64 - baseline
           - runner: windows-11-arm
             os_label: win-arm64
             cc: msvc
             node_version: 24
+            experiment_label: ''
+            msvc_extra: ''
+          # Windows ARM64 - experiment: full NEON (no 6:2 hybrid)
+          - runner: windows-11-arm
+            os_label: win-arm64-neon8
+            cc: msvc
+            node_version: 24
+            experiment_label: 'NEON_LANES=8'
+            msvc_extra: '/DXXH3_NEON_LANES=8'
+          # Windows ARM64 - experiment: force scalar (no NEON)
+          - runner: windows-11-arm
+            os_label: win-arm64-scalar
+            cc: msvc
+            node_version: 24
+            experiment_label: 'SCALAR'
+            msvc_extra: '/DXXH_VECTOR=0'
+          # Windows ARM64 - experiment: inline all
+          - runner: windows-11-arm
+            os_label: win-arm64-inline
+            cc: msvc
+            node_version: 24
+            experiment_label: 'INLINE_ALL'
+            msvc_extra: '/DXXH_INLINE_ALL'
 
     name: Bench ${{ matrix.os_label }} ${{ matrix.cc }} Node ${{ matrix.node_version }}
 
@@ -117,11 +89,18 @@ jobs:
         env:
           CC: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
           CXX: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
+          CL: ${{ matrix.msvc_extra }}
 
       - name: Run benchmark
         shell: bash
         env:
-          BENCHMARK_COMPILER: ${{ matrix.cc != 'msvc' && steps.compiler_unix.outputs.version || steps.compiler_win.outputs.version }}
+          BENCHMARK_COMPILER: >-
+            ${{ matrix.cc != 'msvc'
+                && steps.compiler_unix.outputs.version
+                || format('{0}{1}',
+                    steps.compiler_win.outputs.version,
+                    matrix.experiment_label != '' && format(' [{0}]', matrix.experiment_label) || '')
+            }}
           BENCHMARK_OUTPUT: benchmark-results.json
         run: node benchmark.js
 
@@ -153,28 +132,4 @@ jobs:
           pattern: bench-*
 
       - name: Generate summary
-        run: node benchmark-summary.js benchmark-artifacts "$GITHUB_STEP_SUMMARY" --readme README.md
-
-      - name: Create PR to update README
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          # 41898282 is the GitHub user ID of github-actions[bot].
-          # This email format lets GitHub attribute commits to the bot's profile.
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            BRANCH="benchmark-results-$(date +%Y%m%d-%H%M%S)"
-            git checkout -b "$BRANCH"
-            git commit -m "Update benchmark results in README"
-            git push origin "$BRANCH"
-            gh pr create \
-              --title "Update benchmark results in README" \
-              --body "Auto-generated by the benchmark workflow. Merging this updates the throughput table in README.md." \
-              --base master \
-              --head "$BRANCH"
-          fi
+        run: node benchmark-summary.js benchmark-artifacts "$GITHUB_STEP_SUMMARY"
