@@ -40,9 +40,11 @@ jobs:
         if: matrix.compiler == 'clang' && startsWith(matrix.runner, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y clang
 
-      - name: Setup MSVC
+      - name: Setup MSVC (ARM64 cross-compiler)
         if: matrix.compiler == 'msvc' || matrix.compiler == 'clang-cl'
         uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_arm64
 
       - name: Install LLVM (Windows)
         if: matrix.compiler == 'clang-cl'
