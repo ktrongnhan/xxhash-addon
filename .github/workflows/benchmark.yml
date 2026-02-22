@@ -10,171 +10,90 @@ on:
   workflow_dispatch:
 
 jobs:
-  benchmark:
+  xxhsum-bench:
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          # Linux x86_64 - GCC
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: gcc
-            node_version: 22
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: gcc
-            node_version: 24
-          # Linux x86_64 - Clang
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: clang
-            node_version: 22
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: clang
-            node_version: 24
-          # Linux ARM64 - GCC
           - runner: ubuntu-24.04-arm
             os_label: linux-arm64
-            cc: gcc
-            node_version: 22
+            compiler: gcc
           - runner: ubuntu-24.04-arm
             os_label: linux-arm64
-            cc: gcc
-            node_version: 24
-          # Linux ARM64 - Clang
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: clang
-            node_version: 22
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: clang
-            node_version: 24
-          # macOS ARM64 - Clang
-          - runner: macos-latest
-            os_label: macos-arm64
-            cc: clang
-            node_version: 22
-          - runner: macos-latest
-            os_label: macos-arm64
-            cc: clang
-            node_version: 24
-          # Windows x86_64 - MSVC
-          - runner: windows-latest
-            os_label: win-x64
-            cc: msvc
-            node_version: 22
-          - runner: windows-latest
-            os_label: win-x64
-            cc: msvc
-            node_version: 24
-          # Windows ARM64 - MSVC
+            compiler: clang
           - runner: windows-11-arm
             os_label: win-arm64
-            cc: msvc
-            node_version: 22
+            compiler: msvc
           - runner: windows-11-arm
             os_label: win-arm64
-            cc: msvc
-            node_version: 24
+            compiler: clang-cl
 
-    name: Bench ${{ matrix.os_label }} ${{ matrix.cc }} Node ${{ matrix.node_version }}
+    name: xxhsum ${{ matrix.os_label }} ${{ matrix.compiler }}
 
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node_version }}
-
-      - name: Install Clang
-        if: matrix.cc == 'clang' && startsWith(matrix.runner, 'ubuntu')
+      - name: Install Clang (Ubuntu)
+        if: matrix.compiler == 'clang' && startsWith(matrix.runner, 'ubuntu')
         run: sudo apt-get update && sudo apt-get install -y clang
 
-      - name: Detect compiler version (Unix)
-        if: matrix.cc != 'msvc'
-        id: compiler_unix
-        run: |
-          VERSION=$(${{ matrix.cc }} --version | head -1)
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+      - name: Setup MSVC (ARM64 cross-compiler)
+        if: matrix.compiler == 'msvc' || matrix.compiler == 'clang-cl'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: amd64_arm64
 
-      - name: Detect compiler version (Windows)
-        if: matrix.cc == 'msvc'
-        id: compiler_win
+      - name: Install LLVM (Windows)
+        if: matrix.compiler == 'clang-cl'
         shell: pwsh
         run: |
-          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-          $vsVersion = & $vswhere -latest -property installationVersion
-          echo "version=MSVC $vsVersion" >> $env:GITHUB_OUTPUT
+          # Download LLVM ARM64 Windows installer
+          $url = "https://github.com/llvm/llvm-project/releases/download/llvmorg-19.1.7/LLVM-19.1.7-woa64.exe"
+          Invoke-WebRequest -Uri $url -OutFile llvm-installer.exe
+          Start-Process -Wait -FilePath .\llvm-installer.exe -ArgumentList "/S","/D=C:\LLVM"
+          echo "C:\LLVM\bin" >> $env:GITHUB_PATH
 
-      - name: Build
-        run: npm install
-        env:
-          CC: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
-          CXX: ${{ matrix.cc != 'msvc' && matrix.cc || '' }}
+      - name: Build xxhsum (GCC / Clang)
+        if: matrix.compiler == 'gcc' || matrix.compiler == 'clang'
+        working-directory: xxHash
+        run: |
+          SRCS="xxhash.c cli/xxhsum.c cli/xsum_os_specific.c cli/xsum_arch.c cli/xsum_output.c cli/xsum_sanity_check.c cli/xsum_bench.c"
+          ${{ matrix.compiler }} -O3 -DXXH3_STREAM_USE_STACK=1 $SRCS -o xxhsum
+          echo "### Compiler" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          ${{ matrix.compiler }} --version | head -1 >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Build xxhsum (MSVC)
+        if: matrix.compiler == 'msvc'
+        working-directory: xxHash
+        shell: cmd
+        run: >
+          cl /O2 /DXXH3_STREAM_USE_STACK=1
+          xxhash.c cli\xxhsum.c cli\xsum_os_specific.c
+          cli\xsum_arch.c cli\xsum_output.c
+          cli\xsum_sanity_check.c cli\xsum_bench.c
+          /Fe:xxhsum.exe
+
+      - name: Build xxhsum (Clang-CL)
+        if: matrix.compiler == 'clang-cl'
+        working-directory: xxHash
+        shell: cmd
+        run: >
+          clang-cl /O2 -DXXH3_STREAM_USE_STACK=1
+          xxhash.c cli\xxhsum.c cli\xsum_os_specific.c
+          cli\xsum_arch.c cli\xsum_output.c
+          cli\xsum_sanity_check.c cli\xsum_bench.c
+          /Fe:xxhsum.exe
 
       - name: Run benchmark
+        working-directory: xxHash
         shell: bash
-        env:
-          BENCHMARK_COMPILER: ${{ matrix.cc != 'msvc' && steps.compiler_unix.outputs.version || steps.compiler_win.outputs.version }}
-          BENCHMARK_OUTPUT: benchmark-results.json
-        run: node benchmark.js
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: bench-${{ matrix.os_label }}-${{ matrix.cc }}-node${{ matrix.node_version }}
-          path: benchmark-results.json
-          retention-days: 90
-
-  summary:
-    needs: benchmark
-    if: always()
-    runs-on: ubuntu-latest
-    name: Benchmark Summary
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Download all benchmark artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: benchmark-artifacts
-          pattern: bench-*
-
-      - name: Generate summary
-        run: node benchmark-summary.js benchmark-artifacts "$GITHUB_STEP_SUMMARY" --readme README.md
-
-      - name: Create PR to update README
-        if: github.event_name == 'push' && github.ref == 'refs/heads/master'
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          # 41898282 is the GitHub user ID of github-actions[bot].
-          # This email format lets GitHub attribute commits to the bot's profile.
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add README.md
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            BRANCH="benchmark-results-$(date +%Y%m%d-%H%M%S)"
-            git checkout -b "$BRANCH"
-            git commit -m "Update benchmark results in README"
-            git push origin "$BRANCH"
-            gh pr create \
-              --title "Update benchmark results in README" \
-              --body "Auto-generated by the benchmark workflow. Merging this updates the throughput table in README.md." \
-              --base master \
-              --head "$BRANCH"
-          fi
+          echo "### xxhsum -b  (${{ matrix.compiler }} on ${{ matrix.os_label }})" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          ./xxhsum -b -i5 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"

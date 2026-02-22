@@ -45,7 +45,10 @@ function compilerShort(compiler) {
   const clang = compiler.match(/clang.*?(\d+\.\d+\.\d+)/i);
   if (clang) return `Clang ${clang[1]}`;
   const msvc = compiler.match(/MSVC\s+([\d.]+)/i);
-  if (msvc) return `MSVC ${msvc[1]}`;
+  if (msvc) {
+    const tag = compiler.match(/\[(.+?)\]/);
+    return tag ? `MSVC ${msvc[1]} [${tag[1]}]` : `MSVC ${msvc[1]}`;
+  }
   return compiler.slice(0, 30);
 }
 
