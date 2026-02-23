@@ -67,6 +67,12 @@ jobs:
           ${{ matrix.compiler }} --version | head -1 >> "$GITHUB_STEP_SUMMARY"
           echo '```' >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Generate assembly (GCC / Clang)
+        if: matrix.compiler == 'gcc' || matrix.compiler == 'clang'
+        working-directory: xxHash
+        run: |
+          ${{ matrix.compiler }} -O3 -DXXH3_STREAM_USE_STACK=1 -S xxhash.c -o xxhash.s
+
       - name: Build xxhsum (MSVC)
         if: matrix.compiler == 'msvc'
         working-directory: xxHash
@@ -78,6 +84,12 @@ jobs:
           cli\xsum_sanity_check.c cli\xsum_bench.c
           /Fe:xxhsum.exe
 
+      - name: Generate assembly (MSVC)
+        if: matrix.compiler == 'msvc'
+        working-directory: xxHash
+        shell: cmd
+        run: cl /O2 /DXXH3_STREAM_USE_STACK=1 /FA /Faxxhash.asm /c xxhash.c
+
       - name: Build xxhsum (Clang-CL)
         if: matrix.compiler == 'clang-cl'
         working-directory: xxHash
@@ -88,6 +100,20 @@ jobs:
           cli\xsum_arch.c cli\xsum_output.c
           cli\xsum_sanity_check.c cli\xsum_bench.c
           /Fe:xxhsum.exe
+
+      - name: Generate assembly (Clang-CL)
+        if: matrix.compiler == 'clang-cl'
+        working-directory: xxHash
+        shell: cmd
+        run: clang-cl /O2 -DXXH3_STREAM_USE_STACK=1 /FA /Faxxhash.asm /c xxhash.c
+
+      - name: Upload assembly listing
+        uses: actions/upload-artifact@v4
+        with:
+          name: asm-${{ matrix.os_label }}-${{ matrix.compiler }}
+          path: |
+            xxHash/xxhash.s
+            xxHash/xxhash.asm
 
       - name: Run benchmark
         working-directory: xxHash
