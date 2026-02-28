@@ -1,23 +1,18 @@
-## v3.0.0
+## v2.1.0
 ### Dependencies
-- Remove `jest` dependency; migrate tests to Node.js built-in test runner (`node:test`)
-- Zero devDependencies
+- Remove `jest` dependency; use plain `assert`-based tests (zero dependencies)
 - Upgrade `xxHash` to `v0.8.3`
-### Breaking changes
-- Minimum supported Node.js version is now 20 (dropping 8, 10, 12, 14, 16, 18)
 ### Performance
 - Enable `XXH3_STREAM_USE_STACK` for ~2x faster XXH3 and XXH128 streaming throughput on Apple Silicon with clang
 - Remove `XXH_INLINE_ALL`; compile `xxhash.c` as a separate translation unit (aligning with xxhsum Release build)
 - Enable runtime x86 SIMD dispatch (AVX2/AVX512) via `xxh_x86dispatch.c` on x86/x64
 ### CI
-- Update GitHub Actions to test Node.js 20, 22, 24
-- Update AppVeyor to test Node.js 20, 22, 24
 - Bump `actions/checkout` and `actions/setup-node` to v4
-- Remove deprecated `windows-2016` runner
-- Remove stale jest references from ASan CI jobs
 - Drop AppVeyor; GitHub Actions covers Windows builds
-- Add dedicated benchmark workflow (`benchmark.yml`) with expanded platform matrix:
-  Linux x86_64 and ARM64 (GCC + Clang), macOS ARM64 (Clang), Windows x86_64 and ARM64 (MSVC)
+- Remove deprecated `windows-2016` runner
+- Streamline CI matrix: build+test on Node.js 20 and 24 across Linux/macOS/Windows
+- Sanitizer job now tests the release-optimized binary (`-O3` + `XXH3_STREAM_USE_STACK`) instead of an unoptimized `-O0` build; Clang-only; ASan+UBSan+LSan on Linux, ASan+UBSan on macOS (Apple Clang does not support LSan)
+- Add dedicated benchmark workflow (`benchmark.yml`) on 7 platform/compiler combos (Linux x86_64/ARM64 GCC+Clang, macOS ARM64 Clang, Windows x86_64/ARM64 MSVC), runs on push to `master` only
 - Benchmark results published as GitHub Actions Job Summary
 - Auto-update benchmark results table in README on push to `master`
 ### Improvements

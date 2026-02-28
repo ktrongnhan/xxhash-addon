@@ -16,7 +16,6 @@ jobs:
           - windows-latest
         node_version:
           - 20
-          - 22
           - 24
     name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
@@ -29,7 +28,6 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm test
-      - run: npm run benchmark
       - name: Package and Install
         shell: bash
         run: |
@@ -39,7 +37,7 @@ jobs:
           cd ~/package_install
           npm install xxhash-addon-*.tgz
 
-  asan:
+  sanitizers:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -48,20 +46,12 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node_version:
-          - 20
-          - 22
           - 24
-        cc:
-          - gcc
-          - clang
-        exclude:
-          - os: macos-latest
-            cc: gcc
     env:
-      CC: ${{ matrix.cc }}
-      CXX: ${{ matrix.cc }} # Set this for clang build on Ubuntu to be correctly linked.
+      CC: clang
+      CXX: clang
       DEBUG: 1
-    name: ASAN Node ${{ matrix.node_version }} on ${{ matrix.os }} - ${{ matrix.cc }}
+    name: Sanitizers Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -71,23 +61,21 @@ jobs:
         with:
           node-version: ${{ matrix.node_version }}
 
-      - name: General info
-        run: |
-          $CC --version
-          $CC -print-file-name=libclang_rt.asan_osx_dynamic.dylib
+      - name: Compiler info
+        run: clang --version
 
       - run: npm run debug:build
 
-      - name: ASan npm test Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
-      - name: Asan npm run benchmark Ubuntu
-        if: ${{ startsWith(matrix.os, 'ubuntu') }}
-        run: LD_PRELOAD=$($CC -print-file-name=libasan.so) LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+      - name: Run tests under sanitizers (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: LD_PRELOAD=$(clang -print-file-name=libasan.so) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
+      - name: Run benchmark under sanitizers (Linux)
+        if: startsWith(matrix.os, 'ubuntu')
+        run: LD_PRELOAD=$(clang -print-file-name=libasan.so) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
-      - name: ASan npm test macOS (clang)
-        if: ${{ startsWith(matrix.os, 'macos') }}
+      - name: Run tests under sanitizers (macOS)
+        if: startsWith(matrix.os, 'macos')
         run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node xxhash-addon.test.js
-      - name: Asan npm run benchmark macOS (clang)
-        if: ${{ startsWith(matrix.os, 'macos') }}
+      - name: Run benchmark under sanitizers (macOS)
+        if: startsWith(matrix.os, 'macos')
         run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js

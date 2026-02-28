@@ -4,9 +4,6 @@ on:
   push:
     branches: [master]
     paths-ignore: ['README.md']
-  pull_request:
-    branches: [master]
-    paths-ignore: ['README.md']
   workflow_dispatch:
 
 jobs:
@@ -20,16 +17,8 @@ jobs:
           - runner: ubuntu-latest
             os_label: linux-x64
             cc: gcc
-            node_version: 22
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: gcc
             node_version: 24
           # Linux x86_64 - Clang
-          - runner: ubuntu-latest
-            os_label: linux-x64
-            cc: clang
-            node_version: 22
           - runner: ubuntu-latest
             os_label: linux-x64
             cc: clang
@@ -38,16 +27,8 @@ jobs:
           - runner: ubuntu-24.04-arm
             os_label: linux-arm64
             cc: gcc
-            node_version: 22
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: gcc
             node_version: 24
           # Linux ARM64 - Clang
-          - runner: ubuntu-24.04-arm
-            os_label: linux-arm64
-            cc: clang
-            node_version: 22
           - runner: ubuntu-24.04-arm
             os_label: linux-arm64
             cc: clang
@@ -56,25 +37,13 @@ jobs:
           - runner: macos-latest
             os_label: macos-arm64
             cc: clang
-            node_version: 22
-          - runner: macos-latest
-            os_label: macos-arm64
-            cc: clang
             node_version: 24
           # Windows x86_64 - MSVC
           - runner: windows-latest
             os_label: win-x64
             cc: msvc
-            node_version: 22
-          - runner: windows-latest
-            os_label: win-x64
-            cc: msvc
             node_version: 24
           # Windows ARM64 - MSVC
-          - runner: windows-11-arm
-            os_label: win-arm64
-            cc: msvc
-            node_version: 22
           - runner: windows-11-arm
             os_label: win-arm64
             cc: msvc
@@ -144,7 +113,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 24
 
       - name: Download all benchmark artifacts
         uses: actions/download-artifact@v4
