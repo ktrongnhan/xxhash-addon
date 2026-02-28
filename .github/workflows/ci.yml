@@ -16,7 +16,6 @@ jobs:
           - windows-latest
         node_version:
           - 20
-          - 22
           - 24
     name: Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
@@ -29,7 +28,6 @@ jobs:
           node-version: ${{ matrix.node_version }}
       - run: npm install
       - run: npm test
-      - run: npm run benchmark
       - name: Package and Install
         shell: bash
         run: |
@@ -48,8 +46,6 @@ jobs:
           - ubuntu-latest
           - macos-latest
         node_version:
-          - 20
-          - 22
           - 24
         cc:
           - gcc

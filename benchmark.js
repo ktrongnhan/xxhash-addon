@@ -1,10 +1,10 @@
 'use strict';
 const { XXHash128, XXHash3, XXHash64 } = require('./xxhash-addon');
-const { createHash, randomFillSync } = require('node:crypto');
-const { Buffer } = require('node:buffer');
-const { performance } = require('node:perf_hooks');
-const os = require('node:os');
-const fs = require('node:fs');
+const { createHash, randomFillSync } = require('crypto');
+const { Buffer } = require('buffer');
+const { performance } = require('perf_hooks');
+const os = require('os');
+const fs = require('fs');
 
 // ── Configuration ──
 const BUFFER_SIZE = 2 ** 30;  // 1 GB

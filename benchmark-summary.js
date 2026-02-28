@@ -1,6 +1,6 @@
 'use strict';
-const fs = require('node:fs');
-const path = require('node:path');
+const fs = require('fs');
+const path = require('path');
 
 // Usage: node benchmark-summary.js <artifacts-dir> <output-file> [--readme <readme-path>]
 const args = process.argv.slice(2);
