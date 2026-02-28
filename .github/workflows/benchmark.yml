@@ -38,6 +38,11 @@ jobs:
             os_label: macos-arm64
             cc: clang
             node_version: 24
+          # macOS x86_64 - Clang
+          - runner: macos-15-intel
+            os_label: macos-x64
+            cc: clang
+            node_version: 24
           # Windows x86_64 - MSVC
           - runner: windows-latest
             os_label: win-x64
