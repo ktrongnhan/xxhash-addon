@@ -10,7 +10,8 @@
 - Bump `actions/checkout` and `actions/setup-node` to v4
 - Drop AppVeyor; GitHub Actions covers Windows builds
 - Remove deprecated `windows-2016` runner
-- Streamline CI matrix: build+test on Node.js 20 and 24 across Linux/macOS/Windows; ASan on Node.js 24 only (same compiled C code)
+- Streamline CI matrix: build+test on Node.js 20 and 24 across Linux/macOS/Windows
+- Sanitizer job (ASan+UBSan+LSan) now tests the release-optimized binary (`-O3` + `XXH3_STREAM_USE_STACK`) instead of an unoptimized `-O0` build; Clang-only; leak detection enabled on both Linux and macOS
 - Add dedicated benchmark workflow (`benchmark.yml`) on 7 platform/compiler combos (Linux x86_64/ARM64 GCC+Clang, macOS ARM64 Clang, Windows x86_64/ARM64 MSVC), runs on push to `master` only
 - Benchmark results published as GitHub Actions Job Summary
 - Auto-update benchmark results table in README on push to `master`

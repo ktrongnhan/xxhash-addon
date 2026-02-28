@@ -28,16 +28,17 @@
         [
           "(OS!='win' and '<!(echo $DEBUG)'=='1') or (OS=='win' and '<!(echo %DEBUG%)'=='1')",
           {
+            # Sanitizer build: same as release (-O3 + defines) but with
+            # ASan, UBSan, and debug symbols. Tests the actual code users get.
             "cflags": [
               "-g",
-              "-O0",
-              "-std=c99", # C99 is for GCC on Linux to compile. When using clang on Linux, switch to C89.
+              "-O3",
+              "-std=c99",
               "-pedantic",
               "-Wall",
               "-Wextra",
               "-Werror",
               "-Wstrict-prototypes",
-              # "-Wno-long-long",
               "-fsanitize=address",
               "-fsanitize=undefined",
             ],
@@ -45,18 +46,20 @@
               "-fsanitize=address",
               "-fsanitize=undefined",
             ],
+            "defines": [
+              "XXH3_STREAM_USE_STACK=1",
+            ],
             "xcode_settings": {
-              "GCC_OPTIMIZATION_LEVEL": "0", # stop gyp from defaulting to -Os
+              "GCC_OPTIMIZATION_LEVEL": "3",
               "OTHER_CFLAGS": [
                 "-g",
-                "-O0",
+                "-O3",
                 "-std=c99",
                 "-pedantic",
                 "-Wall",
                 "-Wextra",
                 "-Werror",
                 "-Wstrict-prototypes",
-                # "-Wno-long-long",
                 "-fsanitize=address",
                 "-fsanitize=undefined",
               ],
@@ -70,9 +73,8 @@
                 "BasicRuntimeChecks": 3, # /RTC1
                 "MinimalRebuild": "false",
                 "OmitFramePointers": "false",
-                "Optimization": 0, # /Od, no optimization
+                "Optimization": 2, # /O2, max speed (match release)
                 "WarningLevel": 4, # /W4, max level of warning
-                # "CompileAs": 1 # /TC, compile as C
               }
             }
           },
