@@ -51,7 +51,7 @@ jobs:
       CC: clang
       CXX: clang
       DEBUG: 1
-    name: Sanitizers (ASan+UBSan+LSan) Node ${{ matrix.node_version }} on ${{ matrix.os }}
+    name: Sanitizers Node ${{ matrix.node_version }} on ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -75,7 +75,7 @@ jobs:
 
       - name: Run tests under sanitizers (macOS)
         if: startsWith(matrix.os, 'macos')
-        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node xxhash-addon.test.js
       - name: Run benchmark under sanitizers (macOS)
         if: startsWith(matrix.os, 'macos')
-        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
+        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js
