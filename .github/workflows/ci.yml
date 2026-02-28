@@ -13,6 +13,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+          - macos-15-intel
           - windows-latest
         node_version:
           - 20
@@ -45,6 +46,7 @@ jobs:
         os:
           - ubuntu-latest
           - macos-latest
+          - macos-15-intel
         node_version:
           - 24
     env:
