@@ -54,6 +54,12 @@ function nodeShort(version) {
   return m ? `v${m[1]}` : version;
 }
 
+function sizeLabel(bytes) {
+  if (bytes >= 1 << 20) return (bytes >> 20) + 'MB';
+  if (bytes >= 1 << 10) return (bytes >> 10) + 'KB';
+  return bytes + 'B';
+}
+
 const jsonFiles = findJsonFiles(artifactsDir);
 if (jsonFiles.length === 0) {
   console.error('No JSON files found in', artifactsDir);
@@ -69,8 +75,9 @@ benchmarks.sort((a, b) => {
 
 const hashColumns = ['XXH64', 'XXH3', 'XXH128', 'MD5', 'SHA1'];
 
+// ── Headline table (streaming @ 64 KB chunks) for README ──
 let md = '## Benchmark Results\n\n';
-md += '> Streaming throughput in GB/s (higher is better). Each cell shows median of 5 runs over 10 GB.\n\n';
+md += '> Streaming throughput in GB/s at 64 KB chunks (higher is better). Median of 5 runs.\n\n';
 
 md += '| Platform | Compiler | Node |';
 for (const name of hashColumns) md += ` ${name} |`;
@@ -87,21 +94,67 @@ for (const bench of benchmarks) {
     compilerShort(meta.compiler),
     nodeShort(meta.nodeVersion),
   ];
+
+  // Use headline data (streaming @ 64 KB) if available, fall back to old format
+  const source = bench.headline || bench.results;
   for (const name of hashColumns) {
-    const r = bench.results.find(x => x.name === name);
-    cells.push(r ? r.throughput_gbps.toFixed(2) : '-');
+    const r = source.find(x => x.name === name);
+    const gbps = r ? (r.median_gbps || r.throughput_gbps) : null;
+    cells.push(gbps != null ? gbps.toFixed(2) : '-');
   }
   md += `| ${cells.join(' | ')} |\n`;
 }
 
 md += `\n*Generated at ${new Date().toISOString()} with xxHash v0.8.3*\n`;
 
-// Write to Job Summary output file
-fs.appendFileSync(outputFile, md, 'utf8');
+// ── Detailed sweep tables (for Job Summary only) ──
+let detail = '';
+
+for (const section of ['streaming', 'oneshot']) {
+  // Check if any benchmark has this section
+  if (!benchmarks.some(b => b[section] && b[section].length > 0)) continue;
+
+  const title = section === 'streaming' ? 'Streaming' : 'One-shot';
+  detail += `\n### ${title} Throughput by Buffer Size (GB/s)\n\n`;
+
+  // Collect all sizes from the first benchmark that has this section
+  const ref = benchmarks.find(b => b[section] && b[section].length > 0);
+  const sizes = [...new Set(ref[section].map(r => r.size_bytes))].sort((a, b) => a - b);
+
+  detail += '| Platform | Compiler | Hash |';
+  for (const s of sizes) detail += ` ${sizeLabel(s)} |`;
+  detail += '\n';
+
+  detail += '|----------|----------|------|';
+  for (let i = 0; i < sizes.length; i++) detail += '------:|';
+  detail += '\n';
+
+  for (const bench of benchmarks) {
+    const meta = bench.metadata;
+    const data = bench[section];
+    if (!data || data.length === 0) continue;
+
+    for (const name of hashColumns) {
+      const cells = [
+        platformLabel(meta),
+        compilerShort(meta.compiler),
+        name,
+      ];
+      for (const s of sizes) {
+        const r = data.find(x => x.name === name && x.size_bytes === s);
+        cells.push(r ? r.median_gbps.toFixed(2) : '-');
+      }
+      detail += `| ${cells.join(' | ')} |\n`;
+    }
+  }
+}
+
+// Write headline + detail to Job Summary
+fs.appendFileSync(outputFile, md + detail, 'utf8');
 console.log('Summary written to', outputFile);
 console.log(md);
 
-// Optionally update README between markers
+// Optionally update README between markers (headline table only)
 if (readmePath) {
   const START_MARKER = '<!-- BENCHMARK_RESULTS_START -->';
   const END_MARKER = '<!-- BENCHMARK_RESULTS_END -->';

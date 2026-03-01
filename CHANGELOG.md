@@ -1,3 +1,10 @@
+## Unreleased
+### Improvements
+- Rewrite benchmarks: multi-size sweep (1 KB–16 MB) for both streaming and one-shot APIs, auto-tuned iterations targeting ~1 s per measurement, comparison with `crypto.hash()` and `crypto.createHash()` at every buffer size
+- Add sanitizer guard to `benchmark.js` (exits with error when `DEBUG=1` to prevent meaningless results under ASan/UBSan)
+- Headline table now reports streaming throughput at 64 KB chunks (the `fs.createReadStream` default)
+- Detailed per-size sweep tables included in GitHub Actions Job Summary
+
 ## v2.1.0
 ### Dependencies
 - Remove `jest` dependency; use plain `assert`-based tests (zero dependencies)
