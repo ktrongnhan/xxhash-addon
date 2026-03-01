@@ -27,7 +27,7 @@ Benchmarks run automatically on every push to `master` and every pull request ac
 
 **Coverage:** Linux x86_64/ARM64 (GCC + Clang), macOS ARM64 (Clang), Windows x86_64/ARM64 (MSVC), Node.js 22 + 24.
 
-The benchmark measures streaming throughput (`update()` + `digest()`) over 10 GB of data, with 2 warmup runs and 5 measured runs per hash function, reporting median throughput in GB/s.
+The benchmark measures both **streaming** (`update()` + `digest()`) and **one-shot** (`hash()`) throughput across buffer sizes from 1 KB to 16 MB. Iterations are auto-tuned to ~1 s per measurement, with 2 warmup runs and 5 measured runs, reporting median throughput in GB/s. The headline table below shows streaming throughput at 64 KB chunks — the default `fs.createReadStream` buffer size.
 
 To run locally:
 ```bash
