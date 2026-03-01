@@ -42,19 +42,20 @@ BENCHMARK_OUTPUT=results.json node benchmark.js
 <!-- BENCHMARK_RESULTS_START -->
 ## Benchmark Results
 
-> Streaming throughput in GB/s (higher is better). Each cell shows median of 5 runs over 10 GB.
+> Streaming throughput in GB/s at 64 KB chunks (higher is better). Median of 5 runs.
 
 | Platform | Compiler | Node | XXH64 | XXH3 | XXH128 | MD5 | SHA1 |
 |----------|----------|------|------:|------:|------:|------:|------:|
-| macOS arm64 | Apple Clang 17.0.0 | v24 | 12.87 | 31.31 | 32.59 | 0.61 | 2.21 |
-| Linux arm64 | GCC 13.3.0 | v24 | 16.19 | 17.73 | 17.74 | 0.70 | 1.94 |
-| Linux arm64 | Clang 18.1.3 | v24 | 14.81 | 16.94 | 16.94 | 0.70 | 1.94 |
-| Linux x64 | GCC 13.3.0 | v24 | 11.50 | 21.75 | 21.54 | 0.66 | 1.58 |
-| Linux x64 | Clang 18.1.3 | v24 | 11.56 | 22.67 | 22.47 | 0.66 | 1.58 |
-| Windows arm64 | MSVC 17.14.36811.4 | v24 | 16.02 | 8.46 | 8.45 | 0.66 | 0.74 |
-| Windows x64 | MSVC 17.14.37012.4 | v24 | 10.71 | 20.53 | 20.59 | 0.66 | 1.57 |
+| macOS arm64 | Apple Clang 17.0.0 | v24 | 12.55 | 33.52 | 32.23 | 0.65 | 2.14 |
+| macOS x64 | Apple Clang 17.0.0 | v24 | 14.53 | 35.67 | 36.73 | 0.83 | 1.09 |
+| Linux arm64 | GCC 13.3.0 | v24 | 20.97 | 19.88 | 19.85 | 0.70 | 1.94 |
+| Linux arm64 | Clang 18.1.3 | v24 | 19.01 | 20.08 | 20.06 | 0.70 | 1.94 |
+| Linux x64 | GCC 13.3.0 | v24 | 11.61 | 40.58 | 40.57 | 0.66 | 1.58 |
+| Linux x64 | Clang 18.1.3 | v24 | 11.60 | 41.72 | 41.40 | 0.66 | 1.58 |
+| Windows arm64 | MSVC 17.14.36811.4 | v24 | 20.59 | 9.94 | 9.93 | 0.66 | 0.74 |
+| Windows x64 | MSVC 17.14.37012.4 | v24 | 11.42 | 38.47 | 38.26 | 0.66 | 1.57 |
 
-*Generated at 2026-02-28T08:56:30.362Z with xxHash v0.8.3*
+*Generated at 2026-03-01T16:53:33.255Z with xxHash v0.8.3*
 
 <!-- BENCHMARK_RESULTS_END -->
 
