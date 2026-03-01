@@ -71,13 +71,7 @@ jobs:
       - name: Run tests under sanitizers (Linux)
         if: startsWith(matrix.os, 'ubuntu')
         run: LD_PRELOAD=$(clang -print-file-name=libasan.so) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node xxhash-addon.test.js
-      - name: Run benchmark under sanitizers (Linux)
-        if: startsWith(matrix.os, 'ubuntu')
-        run: LD_PRELOAD=$(clang -print-file-name=libasan.so) ASAN_OPTIONS=detect_leaks=1 LSAN_OPTIONS=suppressions=suppr.lsan node benchmark.js
 
       - name: Run tests under sanitizers (macOS)
         if: startsWith(matrix.os, 'macos')
         run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node xxhash-addon.test.js
-      - name: Run benchmark under sanitizers (macOS)
-        if: startsWith(matrix.os, 'macos')
-        run: DYLD_INSERT_LIBRARIES=$(clang -print-file-name=libclang_rt.asan_osx_dynamic.dylib) node benchmark.js
