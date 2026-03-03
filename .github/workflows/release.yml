@@ -147,12 +147,12 @@ jobs:
 
     name: Build linux-${{ matrix.arch }} musl
     steps:
+      - name: Install build tools
+        run: apk add --no-cache python3 make g++ git
+
       - uses: actions/checkout@v4
         with:
           submodules: true
-
-      - name: Install build tools
-        run: apk add --no-cache python3 make g++
 
       - name: Build addon
         run: npm install
