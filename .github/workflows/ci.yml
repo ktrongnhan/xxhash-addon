@@ -66,6 +66,7 @@ jobs:
       - name: Compiler info
         run: clang --version
 
+      - run: npm install --ignore-scripts
       - run: npm run debug:build
 
       - name: Run tests under sanitizers (Linux)
