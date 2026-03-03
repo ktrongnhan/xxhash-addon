@@ -134,8 +134,6 @@ jobs:
   prebuild-musl:
     needs: validate
     runs-on: ${{ matrix.runner }}
-    container:
-      image: node:24-alpine
     strategy:
       fail-fast: true
       matrix:
@@ -147,27 +145,21 @@ jobs:
 
     name: Build linux-${{ matrix.arch }} musl
     steps:
-      - name: Install build tools
-        run: apk add --no-cache python3 make g++ git
-
       - uses: actions/checkout@v4
         with:
           submodules: true
 
-      - name: Build addon
-        run: npm install
-
-      - name: Run tests
-        run: npm test
-
-      - name: Prepare prebuild
+      - name: Build and test in Alpine container
         run: |
-          DIR="prebuilds/linux-${{ matrix.arch }}"
-          mkdir -p "$DIR"
-          cp build/Release/addon.node "${DIR}/addon.napi.musl.node"
-          strip "${DIR}/addon.napi.musl.node"
-          echo "Prebuild: ${DIR}/addon.napi.musl.node"
-          ls -lh "${DIR}/"
+          docker run --rm -v "${{ github.workspace }}:/work" -w /work node:24-alpine sh -c "
+            apk add --no-cache python3 make g++ &&
+            npm install &&
+            npm test &&
+            mkdir -p prebuilds/linux-${{ matrix.arch }} &&
+            cp build/Release/addon.node prebuilds/linux-${{ matrix.arch }}/addon.napi.musl.node &&
+            strip prebuilds/linux-${{ matrix.arch }}/addon.napi.musl.node &&
+            ls -lh prebuilds/linux-${{ matrix.arch }}/
+          "
 
       - name: Upload prebuild
         uses: actions/upload-artifact@v4
