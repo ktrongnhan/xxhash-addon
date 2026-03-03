@@ -205,20 +205,13 @@ jobs:
       - name: Download all prebuilds
         uses: actions/download-artifact@v4
         with:
-          path: prebuild-artifacts
+          path: prebuilds
           pattern: prebuild-*
+          merge-multiple: true
 
-      - name: Assemble prebuilds directory
+      - name: List prebuilds
         shell: bash
-        run: |
-          mkdir -p prebuilds
-          for dir in prebuild-artifacts/prebuild-*/prebuilds/*/; do
-            target="prebuilds/$(basename "$dir")"
-            mkdir -p "$target"
-            cp "$dir"* "$target/"
-          done
-          echo "=== Assembled prebuilds ==="
-          find prebuilds -type f -exec ls -lh {} \;
+        run: find prebuilds -type f -exec ls -lh {} \;
 
       - name: Verify prebuild loads (no compiled build)
         shell: bash
@@ -243,7 +236,7 @@ jobs:
 
   # ─── Stage 5: Publish ──────────────────────────────────────────────
   publish:
-    needs: verify
+    needs: [validate, verify]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -261,19 +254,12 @@ jobs:
       - name: Download all prebuilds
         uses: actions/download-artifact@v4
         with:
-          path: prebuild-artifacts
+          path: prebuilds
           pattern: prebuild-*
+          merge-multiple: true
 
-      - name: Assemble prebuilds directory
-        run: |
-          mkdir -p prebuilds
-          for dir in prebuild-artifacts/prebuild-*/prebuilds/*/; do
-            target="prebuilds/$(basename "$dir")"
-            mkdir -p "$target"
-            cp "$dir"* "$target/"
-          done
-          echo "=== Prebuilds ==="
-          find prebuilds -type f -exec ls -lh {} \;
+      - name: List prebuilds
+        run: find prebuilds -type f -exec ls -lh {} \;
 
       - name: Create and inspect tarball
         run: |
