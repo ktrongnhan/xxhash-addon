@@ -69,7 +69,7 @@ Features
 * The addon is extensively sanity-checked againts xxhash's sanity test suite to ensure that generated hashes are correct and align with xxhsum's (`xxhsum` is the official utility of xxhash). Check the file `xxhash-addon.test.js` to see how `xxhash-addon` is being tested.
 * Being seriously checked against memory safety and UB issues with ASan and UBSan. See [the CI](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/ci.yml) for how this is done.
 * Benchmarks are publicly available.
-* Minimal dependency: the package does not depend on any other npm packages.
+* Minimal dependency: one tiny runtime dependency ([`node-gyp-build`](https://github.com/prebuild/node-gyp-build), 3 KB, zero transitive dependencies).
 * TypeScript support. `xxhash-addon` **is strongly recommended** to be used with TypeScript. Definitely check [FAQ](https://github.com/ktrongnhan/xxhash-addon#FAQ) before using the addon.
 
 Installation
@@ -78,7 +78,16 @@ Installation
 npm install xxhash-addon
 ```
 
-Note: This native addon requires recompiling. If you do not have Node.js building toolchain then you must install them first:
+Prebuilt binaries are included for the following platforms -- no C compiler required:
+
+| Platform | Architecture |
+|----------|-------------|
+| Linux (glibc) | x64, arm64 |
+| Linux (musl/Alpine) | x64, arm64 |
+| macOS | x64 (Intel), arm64 (Apple Silicon) |
+| Windows | x64, arm64 |
+
+For other platforms, the addon falls back to compiling from source via `node-gyp`, which requires a C toolchain:
 
 On a Windows machine
 
