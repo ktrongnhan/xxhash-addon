@@ -1,19 +1,17 @@
-## Unreleased
-### Improvements
-- Rewrite benchmarks: multi-size sweep (1 KB–16 MB) for both streaming and one-shot APIs, auto-tuned iterations targeting ~1 s per measurement, comparison with `crypto.hash()` and `crypto.createHash()` at every buffer size
-- Add sanitizer guard to `benchmark.js` (exits with error when `DEBUG=1` to prevent meaningless results under ASan/UBSan)
-- Headline table now reports streaming throughput at 64 KB chunks (the `fs.createReadStream` default)
-- Detailed per-size sweep tables included in GitHub Actions Job Summary
-
 ## v2.1.0
+### Features
+- Ship prebuilt binaries for 8 platform/arch/libc targets -- `npm install` no longer requires a C compiler on supported platforms (Linux glibc+musl x64/arm64, macOS x64/arm64, Windows x64/arm64)
+- Automatic fallback to source compilation on unsupported platforms
 ### Dependencies
-- Remove `jest` dependency; use plain `assert`-based tests (zero dependencies)
+- Add `node-gyp-build` as sole runtime dependency for prebuilt binary loading (3 KB, zero transitive dependencies)
+- Remove `jest` dependency; use plain `assert`-based tests
 - Upgrade `xxHash` to `v0.8.3`
 ### Performance
 - Enable `XXH3_STREAM_USE_STACK` for ~2x faster XXH3 and XXH128 streaming throughput on Apple Silicon with clang
 - Remove `XXH_INLINE_ALL`; compile `xxhash.c` as a separate translation unit (aligning with xxhsum Release build)
 - Enable runtime x86 SIMD dispatch (AVX2/AVX512) via `xxh_x86dispatch.c` on x86/x64
 ### CI
+- Add `workflow_dispatch` release workflow: validates, builds prebuilt binaries on 8 targets, verifies, tags, and publishes to npm with provenance attestation
 - Bump `actions/checkout` and `actions/setup-node` to v4
 - Drop AppVeyor; GitHub Actions covers Windows builds
 - Remove deprecated `windows-2016` runner
@@ -23,6 +21,10 @@
 - Benchmark results published as GitHub Actions Job Summary
 - Auto-update benchmark results table in README on push to `master`
 ### Improvements
+- Rewrite benchmarks: multi-size sweep (1 KB–16 MB) for both streaming and one-shot APIs, auto-tuned iterations targeting ~1 s per measurement, comparison with `crypto.hash()` and `crypto.createHash()` at every buffer size
+- Add sanitizer guard to `benchmark.js` (exits with error when `DEBUG=1` to prevent meaningless results under ASan/UBSan)
+- Headline table now reports streaming throughput at 64 KB chunks (the `fs.createReadStream` default)
+- Detailed per-size sweep tables included in GitHub Actions Job Summary
 - Rewrite `benchmark.js`: warmup iterations, 5 measured runs, median/min/max statistics, GB/s throughput, machine-readable JSON output
 - Add `benchmark-summary.js` to consolidate CI benchmark results into a Markdown table
 

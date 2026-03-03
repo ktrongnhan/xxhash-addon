@@ -5,7 +5,7 @@
   "main": "xxhash-addon.js",
   "typings": "index.d.ts",
   "scripts": {
-    "install": "node-gyp rebuild --ensure --jobs max",
+    "install": "node install.js",
     "test": "node xxhash-addon.test.js",
     "benchmark": "node benchmark.js",
     "ci:build": "node-gyp rebuild --verbose --ensure --jobs max",
@@ -20,8 +20,10 @@
     "/xxHash/xxh_x86dispatch.c",
     "/xxHash/xxh_x86dispatch.h",
     "/src",
+    "/prebuilds",
     "binding.gyp",
     "index.d.ts",
+    "install.js",
     "xxhash-addon.js"
   ],
   "repository": {
@@ -33,6 +35,9 @@
     "hash"
   ],
   "author": "Nhan Khong <knhana7@gmail.com>",
+  "dependencies": {
+    "node-gyp-build": "^4.8.0"
+  },
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/ktrongnhan/xxhash-addon/issues"

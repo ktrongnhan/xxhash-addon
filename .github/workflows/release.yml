@@ -1,0 +1,327 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (must match package.json, e.g. 2.1.0)'
+        required: true
+        type: string
+      dry_run:
+        description: 'Dry run -- build and test everything but skip npm publish and git tag'
+        required: false
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  # ─── Stage 1: Validate inputs ──────────────────────────────────────
+  validate:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Validate version
+        id: check
+        run: |
+          PKG_VERSION=$(node -p "require('./package.json').version")
+          INPUT_VERSION="${{ inputs.version }}"
+          if [ "$PKG_VERSION" != "$INPUT_VERSION" ]; then
+            echo "::error::Input version ($INPUT_VERSION) does not match package.json ($PKG_VERSION)"
+            exit 1
+          fi
+          if git rev-parse "v$INPUT_VERSION" >/dev/null 2>&1; then
+            echo "::error::Tag v$INPUT_VERSION already exists"
+            exit 1
+          fi
+          echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
+          echo "✓ Version $INPUT_VERSION validated"
+
+  # ─── Stage 2: Build prebuilt binaries (native runners) ─────────────
+  prebuild:
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            platform: linux
+            arch: x64
+            libc: glibc
+          - runner: ubuntu-24.04-arm
+            platform: linux
+            arch: arm64
+            libc: glibc
+          - runner: macos-latest
+            platform: darwin
+            arch: arm64
+            macos_target: '11.0'
+            libc: ''
+          - runner: macos-15-intel
+            platform: darwin
+            arch: x64
+            macos_target: '10.15'
+            libc: ''
+          - runner: windows-latest
+            platform: win32
+            arch: x64
+            libc: ''
+          - runner: windows-11-arm
+            platform: win32
+            arch: arm64
+            libc: ''
+
+    name: Build ${{ matrix.platform }}-${{ matrix.arch }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Build addon
+        run: npm install
+        env:
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos_target || '' }}
+
+      - name: Run tests
+        run: npm test
+
+      - name: Audit glibc symbols (Linux)
+        if: matrix.platform == 'linux'
+        run: |
+          echo "=== Required GLIBC versions ==="
+          objdump -T build/Release/addon.node | grep GLIBC | sed 's/.*GLIBC_/GLIBC_/' | sort -uV
+          echo ""
+          echo "If you see GLIBC versions above 2.28, investigate -- Node.js 18+ requires glibc 2.28."
+
+      - name: Prepare prebuild
+        shell: bash
+        run: |
+          DIR="prebuilds/${{ matrix.platform }}-${{ matrix.arch }}"
+          mkdir -p "$DIR"
+          SUFFIX="${{ matrix.libc != '' && format('.{0}', matrix.libc) || '' }}"
+          cp build/Release/addon.node "${DIR}/addon.napi${SUFFIX}.node"
+          echo "Prebuild: ${DIR}/addon.napi${SUFFIX}.node"
+          ls -lh "${DIR}/"
+
+      - name: Strip binary (Linux)
+        if: matrix.platform == 'linux'
+        run: strip "prebuilds/${{ matrix.platform }}-${{ matrix.arch }}"/*.node
+
+      - name: Strip binary (macOS)
+        if: matrix.platform == 'darwin'
+        run: strip -x "prebuilds/${{ matrix.platform }}-${{ matrix.arch }}"/*.node
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-${{ matrix.platform }}-${{ matrix.arch }}
+          path: prebuilds/
+          retention-days: 7
+
+  # ─── Stage 3: Build musl prebuilds (Alpine containers) ─────────────
+  prebuild-musl:
+    needs: validate
+    runs-on: ${{ matrix.runner }}
+    container:
+      image: node:24-alpine
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - runner: ubuntu-22.04
+            arch: x64
+          - runner: ubuntu-24.04-arm
+            arch: arm64
+
+    name: Build linux-${{ matrix.arch }} musl
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Install build tools
+        run: apk add --no-cache python3 make g++
+
+      - name: Build addon
+        run: npm install
+
+      - name: Run tests
+        run: npm test
+
+      - name: Prepare prebuild
+        run: |
+          DIR="prebuilds/linux-${{ matrix.arch }}"
+          mkdir -p "$DIR"
+          cp build/Release/addon.node "${DIR}/addon.napi.musl.node"
+          strip "${DIR}/addon.napi.musl.node"
+          echo "Prebuild: ${DIR}/addon.napi.musl.node"
+          ls -lh "${DIR}/"
+
+      - name: Upload prebuild
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuild-linux-${{ matrix.arch }}-musl
+          path: prebuilds/
+          retention-days: 7
+
+  # ─── Stage 4: Verify prebuilds on each platform ────────────────────
+  verify:
+    needs: [prebuild, prebuild-musl]
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - runner: ubuntu-latest
+            platform: linux-x64
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+          - runner: macos-latest
+            platform: darwin-arm64
+          - runner: macos-15-intel
+            platform: darwin-x64
+          - runner: windows-latest
+            platform: win32-x64
+          - runner: windows-11-arm
+            platform: win32-arm64
+
+    name: Verify ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install node-gyp-build (runtime dep only, no native build)
+        run: npm install --ignore-scripts
+
+      - name: Download all prebuilds
+        uses: actions/download-artifact@v4
+        with:
+          path: prebuild-artifacts
+          pattern: prebuild-*
+
+      - name: Assemble prebuilds directory
+        shell: bash
+        run: |
+          mkdir -p prebuilds
+          for dir in prebuild-artifacts/prebuild-*/prebuilds/*/; do
+            target="prebuilds/$(basename "$dir")"
+            mkdir -p "$target"
+            cp "$dir"* "$target/"
+          done
+          echo "=== Assembled prebuilds ==="
+          find prebuilds -type f -exec ls -lh {} \;
+
+      - name: Verify prebuild loads (no compiled build)
+        shell: bash
+        run: |
+          # Remove any compiled build to force prebuild usage
+          rm -rf build
+          node -e "
+            var m = require('./xxhash-addon');
+            var classes = Object.keys(m);
+            console.log('Loaded classes:', classes.join(', '));
+            if (classes.length !== 4) throw new Error('Expected 4 classes, got ' + classes.length);
+          "
+
+      - name: Run full test suite with prebuilds
+        run: node xxhash-addon.test.js
+
+      - name: Benchmark smoke test
+        shell: bash
+        run: |
+          # Quick benchmark to sanity-check performance is not degraded
+          node benchmark.js 2>&1 | tail -20
+
+  # ─── Stage 5: Publish ──────────────────────────────────────────────
+  publish:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install dependencies (no native build)
+        run: npm install --ignore-scripts
+
+      - name: Download all prebuilds
+        uses: actions/download-artifact@v4
+        with:
+          path: prebuild-artifacts
+          pattern: prebuild-*
+
+      - name: Assemble prebuilds directory
+        run: |
+          mkdir -p prebuilds
+          for dir in prebuild-artifacts/prebuild-*/prebuilds/*/; do
+            target="prebuilds/$(basename "$dir")"
+            mkdir -p "$target"
+            cp "$dir"* "$target/"
+          done
+          echo "=== Prebuilds ==="
+          find prebuilds -type f -exec ls -lh {} \;
+
+      - name: Create and inspect tarball
+        run: |
+          npm pack
+          echo "=== Package contents ==="
+          tar tzf xxhash-addon-*.tgz
+          echo ""
+          echo "=== Package size ==="
+          ls -lh xxhash-addon-*.tgz
+
+      - name: Dry run summary
+        if: inputs.dry_run
+        run: |
+          echo "::notice::DRY RUN -- skipping npm publish and git tag"
+          echo ""
+          echo "Would publish xxhash-addon@${{ needs.validate.outputs.version }}"
+          echo "Would create tag v${{ needs.validate.outputs.version }}"
+          echo "Would create GitHub Release v${{ needs.validate.outputs.version }}"
+          echo ""
+          echo "Re-run this workflow with dry_run=false to publish for real."
+
+      - name: Publish to npm
+        if: ${{ !inputs.dry_run }}
+        run: npm publish --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create git tag
+        if: ${{ !inputs.dry_run }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git tag -a "v${{ needs.validate.outputs.version }}" -m "Release v${{ needs.validate.outputs.version }}"
+          git push origin "v${{ needs.validate.outputs.version }}"
+
+      - name: Create GitHub Release
+        if: ${{ !inputs.dry_run }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ needs.validate.outputs.version }}" \
+            --title "v${{ needs.validate.outputs.version }}" \
+            --generate-notes
