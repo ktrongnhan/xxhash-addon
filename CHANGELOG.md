@@ -2,6 +2,7 @@
 ### Dependencies
 - Upgrade `xxHash` to `v0.8.4`
 ### CI
+- Prepare package versions and changelog automatically in the release workflow, then publish with provenance from the merged release commit
 - Keep Node.js 20 Windows builds on Visual Studio 2022, supported by its bundled node-gyp
 - Suppress the Node.js 24.22.3 OpenSSL startup leak in existing LeakSanitizer checks
 
