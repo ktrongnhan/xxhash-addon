@@ -4,49 +4,95 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to release (must match package.json, e.g. 2.1.0)'
+        description: 'New stable version to prepare and release (e.g. 2.1.1)'
         required: true
         type: string
       dry_run:
-        description: 'Dry run -- build and test everything but skip npm publish and git tag'
+        description: 'Dry run -- preview version changes and build packages without changing GitHub or npm'
         required: false
         type: boolean
         default: true
 
 permissions:
-  contents: write
-  id-token: write
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+  queue: max
 
 jobs:
-  # ─── Stage 1: Validate inputs ──────────────────────────────────────
-  validate:
+  # ─── Stage 1: Prepare release metadata ─────────────────────────────
+  prepare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
     outputs:
       version: ${{ steps.check.outputs.version }}
+      ready: ${{ steps.start.outputs.ready }}
+    env:
+      RELEASE_VERSION: ${{ inputs.version }}
+      DRY_RUN: ${{ inputs.dry_run }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
           submodules: true
 
-      - name: Validate version
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Prepare and validate version
         id: check
         run: |
-          PKG_VERSION=$(node -p "require('./package.json').version")
-          INPUT_VERSION="${{ inputs.version }}"
-          if [ "$PKG_VERSION" != "$INPUT_VERSION" ]; then
-            echo "::error::Input version ($INPUT_VERSION) does not match package.json ($PKG_VERSION)"
+          if [ "$GITHUB_REF" != refs/heads/master ]; then
+            echo '::error::Start releases from master.'
             exit 1
           fi
-          if git rev-parse "v$INPUT_VERSION" >/dev/null 2>&1; then
-            echo "::error::Tag v$INPUT_VERSION already exists"
+          node scripts/prepare-release.js "$RELEASE_VERSION"
+          if git show-ref --verify --quiet "refs/tags/v$RELEASE_VERSION"; then
+            echo "::error::Tag v$RELEASE_VERSION already exists"
             exit 1
           fi
-          echo "version=$INPUT_VERSION" >> "$GITHUB_OUTPUT"
-          echo "✓ Version $INPUT_VERSION validated"
+          node <<'NODE'
+          const { name } = require('./package.json');
+          (async () => {
+            const url = `https://registry.npmjs.org/${encodeURIComponent(name)}/${process.env.RELEASE_VERSION}`;
+            const response = await fetch(url, { signal: AbortSignal.timeout(30000) });
+            if (response.status === 200) throw new Error('This version is already published on npm.');
+            if (response.status !== 404) throw new Error(`npm registry check failed: HTTP ${response.status}`);
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE
+          echo "version=$RELEASE_VERSION" >> "$GITHUB_OUTPUT"
+          git diff --check
+          printf '## Release v%s\n\n```diff\n' "$RELEASE_VERSION" >> "$GITHUB_STEP_SUMMARY"
+          git diff -- package.json package-lock.json CHANGELOG.md >> "$GITHUB_STEP_SUMMARY"
+          printf '\n```\n' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Commit metadata through a release PR and continue from the merged commit
+        id: start
+        run: bash scripts/start-release.sh
+
+      - name: Upload release metadata
+        if: steps.start.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-metadata
+          path: |
+            package.json
+            package-lock.json
+            CHANGELOG.md
+          retention-days: 7
 
   # ─── Stage 2: Build prebuilt binaries (native runners) ─────────────
   prebuild:
-    needs: validate
+    needs: prepare
+    if: needs.prepare.outputs.ready == 'true'
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: true
@@ -85,12 +131,16 @@ jobs:
         with:
           submodules: true
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Build addon
-        run: npm install
+        run: npm ci
         env:
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.macos_target || '' }}
 
@@ -132,7 +182,8 @@ jobs:
 
   # ─── Stage 3: Build musl prebuilds (Alpine containers) ─────────────
   prebuild-musl:
-    needs: validate
+    needs: prepare
+    if: needs.prepare.outputs.ready == 'true'
     runs-on: ${{ matrix.runner }}
     strategy:
       fail-fast: true
@@ -149,11 +200,15 @@ jobs:
         with:
           submodules: true
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+
       - name: Build and test in Alpine container
         run: |
           docker run --rm -v "${{ github.workspace }}:/work" -w /work node:24-alpine sh -c "
             apk add --no-cache python3 make g++ &&
-            npm install &&
+            npm ci &&
             npm test &&
             mkdir -p prebuilds/linux-${{ matrix.arch }} &&
             cp build/Release/addon.node prebuilds/linux-${{ matrix.arch }}/addon.napi.musl.node &&
@@ -195,12 +250,16 @@ jobs:
         with:
           submodules: true
 
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
+
       - uses: actions/setup-node@v4
         with:
           node-version: 24
 
       - name: Install node-gyp-build (runtime dep only, no native build)
-        run: npm install --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Download all prebuilds
         uses: actions/download-artifact@v4
@@ -228,20 +287,23 @@ jobs:
       - name: Run full test suite with prebuilds
         run: node xxhash-addon.test.js
 
-      - name: Benchmark smoke test
-        shell: bash
-        run: |
-          # Quick benchmark to sanity-check performance is not degraded
-          node benchmark.js 2>&1 | tail -20
-
   # ─── Stage 5: Publish ──────────────────────────────────────────────
   publish:
-    needs: [validate, verify]
+    needs: [prepare, verify]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      RELEASE_VERSION: ${{ needs.prepare.outputs.version }}
     steps:
       - uses: actions/checkout@v4
         with:
           submodules: true
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-metadata
 
       - uses: actions/setup-node@v4
         with:
@@ -249,7 +311,7 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies (no native build)
-        run: npm install --ignore-scripts
+        run: npm ci --ignore-scripts
 
       - name: Download all prebuilds
         uses: actions/download-artifact@v4
@@ -275,15 +337,17 @@ jobs:
         run: |
           echo "::notice::DRY RUN -- skipping npm publish and git tag"
           echo ""
-          echo "Would publish xxhash-addon@${{ needs.validate.outputs.version }}"
-          echo "Would create tag v${{ needs.validate.outputs.version }}"
-          echo "Would create GitHub Release v${{ needs.validate.outputs.version }}"
+          echo "Would publish xxhash-addon@$RELEASE_VERSION"
+          echo "Would create tag v$RELEASE_VERSION"
+          echo "Would create GitHub Release v$RELEASE_VERSION"
           echo ""
           echo "Re-run this workflow with dry_run=false to publish for real."
 
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
-        run: npm publish --provenance --access public
+        run: |
+          git diff --exit-code -- package.json package-lock.json CHANGELOG.md
+          npm publish "xxhash-addon-$RELEASE_VERSION.tgz" --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
@@ -292,14 +356,40 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git tag -a "v${{ needs.validate.outputs.version }}" -m "Release v${{ needs.validate.outputs.version }}"
-          git push origin "v${{ needs.validate.outputs.version }}"
+          git tag -a "v$RELEASE_VERSION" -m "Release v$RELEASE_VERSION"
+          git push origin "v$RELEASE_VERSION"
 
       - name: Create GitHub Release
         if: ${{ !inputs.dry_run }}
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "v${{ needs.validate.outputs.version }}" \
-            --title "v${{ needs.validate.outputs.version }}" \
-            --generate-notes
+          node <<'NODE'
+          const fs = require('node:fs');
+          const text = fs.readFileSync('CHANGELOG.md', 'utf8').replace(/\r\n/g, '\n');
+          const section = text.split(`## v${process.env.RELEASE_VERSION}\n`)[1].split(/^## /m)[0];
+          fs.writeFileSync(process.env.RUNNER_TEMP + '/release-notes.md', section.trim() + '\n');
+          NODE
+          gh release create "v$RELEASE_VERSION" \
+            --title "v$RELEASE_VERSION" --verify-tag \
+            --notes-file "$RUNNER_TEMP/release-notes.md"
+
+      - name: Verify published package and provenance
+        if: ${{ !inputs.dry_run }}
+        run: |
+          node <<'NODE'
+          const assert = require('node:assert/strict');
+          const fs = require('node:fs');
+          const crypto = require('node:crypto');
+          const { name, version } = require('./package.json');
+          const tarball = fs.readFileSync(`${name}-${version}.tgz`);
+          const integrity = 'sha512-' + crypto.createHash('sha512').update(tarball).digest('base64');
+          (async () => {
+            const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/${version}`, { signal: AbortSignal.timeout(30000) });
+            assert.equal(response.status, 200, 'Published version must be readable from npm');
+            const published = await response.json();
+            assert.equal(published.dist.integrity, integrity, 'npm tarball must match the inspected package');
+            assert.equal(published.dist.attestations?.provenance?.predicateType, 'https://slsa.dev/provenance/v1', 'npm provenance must be present');
+            console.log(`Verified ${name}@${version}: tarball integrity and provenance.`);
+          })().catch(error => { console.error(error); process.exitCode = 1; });
+          NODE

@@ -213,6 +213,21 @@ git push origin your_name/upgrade_deps
 
 
 
+Releasing (maintainers)
+===========
+
+Keep release notes under `## Unreleased` in `CHANGELOG.md`. To release, open [Actions → Release](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/release.yml), select `master`, and enter a new stable version such as `2.1.1` without a `v` prefix.
+
+- Leave **Dry run** checked to preview the version/changelog diff and build/test the package without pushing commits, creating PRs or tags, or publishing to npm.
+- Uncheck **Dry run** to update both package version files and move the Unreleased notes under the new version. The workflow creates and merges a release metadata PR, then automatically starts a second Release run from the merged commit so npm provenance identifies the release source. It builds and tests all eight prebuild targets, publishes the inspected tarball with provenance, creates the Git tag and GitHub Release using the changelog notes, and checks npm's tarball integrity and provenance metadata. Benchmarks are not rerun.
+
+Branch protections still apply. If a required review blocks the metadata PR, merge that PR and start Release again with the same version. The workflow accepts an already prepared, unpublished version, and rejects downgrades, existing tags, and versions already on npm.
+
+Publishing requires one-time authentication setup: configure an [npm trusted publisher](https://docs.npmjs.com/trusted-publishers/) for owner `ktrongnhan`, repository `xxhash-addon`, workflow `release.yml`, with direct `npm publish` allowed; alternatively, provide the existing `NPM_TOKEN` repository secret with publishing access. The publish job already grants `id-token: write` and requests provenance.
+
+To check release preparation and retries locally, run `node --test scripts/*.test.js` (Node.js 24; no dependency installation required).
+
+
 API reference
 ===========
 
