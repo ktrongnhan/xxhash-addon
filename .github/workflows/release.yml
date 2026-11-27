@@ -19,6 +19,7 @@ permissions:
 concurrency:
   group: release
   cancel-in-progress: false
+  queue: max
 
 jobs:
   # ─── Stage 1: Prepare release metadata ─────────────────────────────
@@ -75,27 +76,7 @@ jobs:
 
       - name: Commit metadata through a release PR and continue from the merged commit
         id: start
-        run: |
-          if [ "$DRY_RUN" = true ] || git diff --quiet -- package.json package-lock.json CHANGELOG.md; then
-            echo 'ready=true' >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
-          git switch -c "release/v$RELEASE_VERSION"
-          git add package.json package-lock.json CHANGELOG.md
-          git commit -m "Release v$RELEASE_VERSION"
-          git push origin "HEAD:refs/heads/release/v$RELEASE_VERSION"
-          printf 'Prepare package versions and changelog for v%s.\n\nRequested by [release workflow](%s/%s/actions/runs/%s).\n' \
-            "$RELEASE_VERSION" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" "$GITHUB_RUN_ID" > "$RUNNER_TEMP/release-pr.md"
-          RELEASE_PR=$(gh pr create --base master --head "release/v$RELEASE_VERSION" \
-            --title "Release v$RELEASE_VERSION" --body-file "$RUNNER_TEMP/release-pr.md")
-          gh pr merge "$RELEASE_PR" --squash --delete-branch --match-head-commit "$(git rev-parse HEAD)"
-          # A new run makes npm provenance identify the committed release source.
-          gh workflow run release.yml --ref master -f version="$RELEASE_VERSION" -f dry_run=false
-          echo 'ready=false' >> "$GITHUB_OUTPUT"
-          printf '\nMetadata merged: %s\n\nPublishing continues automatically in a new [Release run](%s/%s/actions/workflows/release.yml).\n' \
-            "$RELEASE_PR" "$GITHUB_SERVER_URL" "$GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"
+        run: bash scripts/start-release.sh
 
       - name: Upload release metadata
         if: steps.start.outputs.ready == 'true'

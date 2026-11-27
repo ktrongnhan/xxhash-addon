@@ -225,7 +225,7 @@ Branch protections still apply. If a required review blocks the metadata PR, mer
 
 Publishing requires one-time authentication setup: configure an [npm trusted publisher](https://docs.npmjs.com/trusted-publishers/) for owner `ktrongnhan`, repository `xxhash-addon`, workflow `release.yml`, with direct `npm publish` allowed; alternatively, provide the existing `NPM_TOKEN` repository secret with publishing access. The publish job already grants `id-token: write` and requests provenance.
 
-To check the version/changelog preparation locally, run `node --test scripts/prepare-release.test.js` (Node.js 24; no dependency installation required).
+To check release preparation and retries locally, run `node --test scripts/*.test.js` (Node.js 24; no dependency installation required).
 
 
 API reference
