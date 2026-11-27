@@ -177,7 +177,7 @@ function collectMetadata() {
     nodeVersion: process.version,
     v8Version: process.versions.v8,
     compiler: process.env.BENCHMARK_COMPILER || 'unknown',
-    xxhashVersion: '0.8.3',
+    xxhashVersion: '0.8.4',
     sizes: SIZES,
     targetMs: TARGET_MS,
     warmupRuns: WARMUP,

@@ -1,3 +1,10 @@
+## Unreleased
+### Dependencies
+- Upgrade `xxHash` to `v0.8.4`
+### CI
+- Keep Node.js 20 Windows builds on Visual Studio 2022, supported by its bundled node-gyp
+- Suppress the Node.js 24.22.3 OpenSSL startup leak in existing LeakSanitizer checks
+
 ## v2.1.0
 ### Features
 - Ship prebuilt binaries for 8 platform/arch/libc targets -- `npm install` no longer requires a C compiler on supported platforms (Linux glibc+musl x64/arm64, macOS x64/arm64, Windows x64/arm64)

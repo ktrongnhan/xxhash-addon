@@ -1,1 +1,3 @@
 leak:^napi_module_register$
+# Node 24.22.3 leaks during OpenSSL startup before the addon loads.
+leak:^ossl_load_builtin_compressions$

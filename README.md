@@ -10,7 +10,7 @@ __IMPORTANT__: `xxhash-addon` v2 is finally here. This is almost a re-work of th
 
 Overview
 ===========
-`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) `v0.8.3`, which has support for a new algorithm `XXH3` that has been showed to outperform its predecessor.
+`xxhash-addon` is a native addon for Node.js (>=8.6.0) written using N-API. It 'thinly' wraps [xxhash](https://github.com/Cyan4973/xxHash) `v0.8.4`, which has support for a new algorithm `XXH3` that has been showed to outperform its predecessor.
 
 __IMPORTANT__: As of `v0.8.0`, XXH3 and XXH128 are now considered stable. Rush to the upstream [CHANGELOG](https://github.com/Cyan4973/xxHash/blob/v0.8.0/CHANGELOG) for the formal announcement! `xxhash-addon v1.4.0` is the first iteration packed with stable XXH3 and XXH128.
 
@@ -23,9 +23,9 @@ Why v2?
 CI Benchmarks
 ==========
 
-Benchmarks run automatically on every push to `master` and every pull request across multiple platforms, compilers, architectures, and Node.js versions. Results are published as a [GitHub Actions Job Summary](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/benchmark.yml) — click any workflow run to see the consolidated throughput table.
+Benchmarks run automatically on every push to `master` and can also be triggered manually. Results are published as a [GitHub Actions Job Summary](https://github.com/ktrongnhan/xxhash-addon/actions/workflows/benchmark.yml) — click any workflow run to see the consolidated throughput table.
 
-**Coverage:** Linux x86_64/ARM64 (GCC + Clang), macOS ARM64 (Clang), Windows x86_64/ARM64 (MSVC), Node.js 22 + 24.
+**Coverage:** Linux x86_64/ARM64 (GCC + Clang), macOS x86_64/ARM64 (Clang), Windows x86_64/ARM64 (MSVC), Node.js 24.
 
 The benchmark measures both **streaming** (`update()` + `digest()`) and **one-shot** (`hash()`) throughput across buffer sizes from 1 KB to 16 MB. Iterations are auto-tuned to ~1 s per measurement, with 2 warmup runs and 5 measured runs, reporting median throughput in GB/s. The headline table below shows streaming throughput at 64 KB chunks — the default `fs.createReadStream` buffer size.
 
@@ -46,16 +46,16 @@ BENCHMARK_OUTPUT=results.json node benchmark.js
 
 | Platform | Compiler | Node | XXH64 | XXH3 | XXH128 | MD5 | SHA1 |
 |----------|----------|------|------:|------:|------:|------:|------:|
-| macOS arm64 | Apple Clang 17.0.0 | v24 | 12.55 | 33.52 | 32.23 | 0.65 | 2.14 |
-| macOS x64 | Apple Clang 17.0.0 | v24 | 14.53 | 35.67 | 36.73 | 0.83 | 1.09 |
-| Linux arm64 | GCC 13.3.0 | v24 | 20.97 | 19.88 | 19.85 | 0.70 | 1.94 |
-| Linux arm64 | Clang 18.1.3 | v24 | 19.01 | 20.08 | 20.06 | 0.70 | 1.94 |
-| Linux x64 | GCC 13.3.0 | v24 | 11.61 | 40.58 | 40.57 | 0.66 | 1.58 |
-| Linux x64 | Clang 18.1.3 | v24 | 11.60 | 41.72 | 41.40 | 0.66 | 1.58 |
-| Windows arm64 | MSVC 17.14.36811.4 | v24 | 20.59 | 9.94 | 9.93 | 0.66 | 0.74 |
-| Windows x64 | MSVC 17.14.37012.4 | v24 | 11.42 | 38.47 | 38.26 | 0.66 | 1.57 |
+| macOS arm64 | Apple Clang 21.0.0 | v24 | 13.24 | 33.47 | 33.53 | 0.65 | 2.18 |
+| macOS x64 | Apple Clang 17.0.0 | v24 | 13.69 | 34.73 | 35.29 | 0.82 | 1.01 |
+| Linux arm64 | Clang 18.1.3 | v24 | 19.01 | 20.04 | 20.04 | 0.70 | 1.94 |
+| Linux arm64 | GCC 13.3.0 | v24 | 20.97 | 19.80 | 19.80 | 0.70 | 1.94 |
+| Linux x64 | Clang 21.1.8 | v24 | 11.56 | 40.99 | 41.10 | 0.66 | 1.58 |
+| Linux x64 | GCC 15.2.0 | v24 | 11.11 | 45.62 | 45.81 | 0.63 | 1.56 |
+| Windows arm64 | MSVC 18.12.12405.243 | v24 | 20.73 | 10.32 | 10.32 | 0.66 | 0.74 |
+| Windows x64 | MSVC 18.12.12405.243 | v24 | 11.34 | 14.25 | 14.25 | 0.66 | 1.58 |
 
-*Generated at 2026-03-01T16:53:33.255Z with xxHash v0.8.3*
+*Generated at 2026-11-27T04:54:53.883Z with xxHash v0.8.4*
 
 <!-- BENCHMARK_RESULTS_END -->
 
