@@ -1,4 +1,6 @@
 ## Unreleased
+
+## v2.1.1
 ### Dependencies
 - Upgrade `xxHash` to `v0.8.4`
 ### CI
