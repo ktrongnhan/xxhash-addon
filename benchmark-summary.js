@@ -105,7 +105,7 @@ for (const bench of benchmarks) {
   md += `| ${cells.join(' | ')} |\n`;
 }
 
-md += `\n*Generated at ${new Date().toISOString()} with xxHash v0.8.3*\n`;
+md += `\n*Generated at ${new Date().toISOString()} with xxHash v0.8.4*\n`;
 
 // ── Detailed sweep tables (for Job Summary only) ──
 let detail = '';
