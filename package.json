@@ -38,6 +38,14 @@
   "dependencies": {
     "node-gyp-build": "^4.8.0"
   },
+  "peerDependencies": {
+    "@types/node": "*"
+  },
+  "peerDependenciesMeta": {
+    "@types/node": {
+      "optional": true
+    }
+  },
   "license": "BSD-2-Clause",
   "bugs": {
     "url": "https://github.com/ktrongnhan/xxhash-addon/issues"

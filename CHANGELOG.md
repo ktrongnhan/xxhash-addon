@@ -1,4 +1,7 @@
 ## Unreleased
+### Fixes
+- Expose all four hash classes as named imports in Node.js ES modules.
+- Resolve TypeScript `Buffer` declarations when a consumer sets `types: []` and provides `@types/node`.
 
 ## v2.1.1
 ### Dependencies
