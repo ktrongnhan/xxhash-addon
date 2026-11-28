@@ -40,9 +40,10 @@ jobs:
         run: |
           npm pack
           mkdir ~/package_install
-          cp xxhash-addon-*.tgz ~/package_install
+          cp xxhash-addon-*.tgz test/consumer/imports.mjs ~/package_install
           cd ~/package_install
           npm install xxhash-addon-*.tgz
+          node imports.mjs
 
   sanitizers:
     runs-on: ${{ matrix.os }}

@@ -78,6 +78,8 @@ Installation
 npm install xxhash-addon
 ```
 
+TypeScript projects need `@types/node` for the addon's `Buffer` types. Use the version that matches your Node.js major version.
+
 Prebuilt binaries are included for the following platforms -- no C compiler required:
 
 | Platform | Architecture |
@@ -112,6 +114,16 @@ Install `Xcode command line tools`
 
 Example
 =========
+
+In a Node.js ES module, use a named import.
+
+```javascript
+import { XXHash3 } from 'xxhash-addon';
+
+console.log(XXHash3.hash(Buffer.from('hello there')).toString('hex'));
+```
+
+In CommonJS, use `require`.
 
 ```javascript
 const { XXHash32, XXHash3 } = require('xxhash-addon');

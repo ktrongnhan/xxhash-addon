@@ -1,3 +1,5 @@
+/// <reference types="node" />
+
 export interface XXHash {
   update(data: Buffer): void;
   digest(): Buffer;
