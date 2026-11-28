@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "module": "nodenext",
+    "strict": true,
+    "types": [],
+    "skipLibCheck": false
+  },
+  "files": ["typed.mts", "typed.cts"]
+}

@@ -45,6 +45,17 @@ jobs:
           npm install xxhash-addon-*.tgz
           node imports.mjs
 
+      - name: Compile and run TypeScript CommonJS and ESM consumers
+        if: matrix.os == 'ubuntu-latest' && matrix.node_version == 24
+        run: |
+          cp test/consumer/{typed.mts,tsconfig.json} ~/package_install/
+          cd ~/package_install
+          cp typed.mts typed.cts
+          npm install --no-save --ignore-scripts typescript@7.0.2 @types/node@24.13.6
+          ./node_modules/.bin/tsc -p .
+          node typed.cjs
+          node typed.mjs
+
   sanitizers:
     runs-on: ${{ matrix.os }}
     strategy:
